@@ -27,10 +27,10 @@ public class AuthService {
     private final EmailService emailService;
 
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.findByUsername(request.getUsername().toLowerCase()).isPresent()) {
+        if (userRepository.existsByUsername(request.getUsername().toLowerCase())) {
             throw new RuntimeException("Username already exists");
         }
-        if (userRepository.findByEmail(request.getEmail().toLowerCase()).isPresent()) {
+        if (userRepository.existsByEmail(request.getEmail().toLowerCase())) {
             throw new RuntimeException("Email already exists");
         }
         
