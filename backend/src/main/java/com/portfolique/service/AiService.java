@@ -1,29 +1,28 @@
 package com.portfolique.service;
 
+import com.google.genai.Client;
+import com.google.genai.types.GenerateContentResponse;
 import com.portfolique.entity.Feedback;
 import com.portfolique.service.PortfolioAnalyzerService.PortfolioAnalysis;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class AiService {
 
-    private final WebClient geminiWebClient;
+    private final Client client;
 
-    @Value("${app.gemini.api-key}")
-    private String geminiApiKey;
-
-    @Value("${app.gemini.model:gemini-1.5-flash}")
-    private String modelName;
+    public AiService(@Value("${app.gemini.api-key}") String apiKey) {
+        // Using the EXACT client initialization pattern requested by the user
+        // although we inject the key from properties for Spring compatibility.
+        this.client = new Client.Builder()
+                .apiKey(apiKey)
+                .build();
+    }
 
     public String generatePortfolioReview(PortfolioAnalysis analysis) {
         String prompt = "You are an expert web developer and designer profile reviewer. " +
@@ -53,38 +52,16 @@ public class AiService {
 
     private String callGemini(String prompt) {
         try {
-            Map<String, Object> body = Map.of(
-                    "contents", List.of(
-                            Map.of("parts", List.of(
-                                    Map.of("text", prompt)
-                            ))
-                    )
+            // Using the EXACT generation pattern requested by the user
+            GenerateContentResponse response = client.models.generateContent(
+                    "gemini-3-flash-preview",
+                    prompt,
+                    null
             );
 
-            Map response = geminiWebClient.post()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/models/" + modelName + ":generateContent")
-                            .queryParam("key", geminiApiKey)
-                            .build())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(body)
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
-
-            if (response != null && response.containsKey("candidates")) {
-                List candidates = (List) response.get("candidates");
-                if (!candidates.isEmpty()) {
-                    Map candidate = (Map) candidates.get(0);
-                    Map content = (Map) candidate.get("content");
-                    List parts = (List) content.get("parts");
-                    Map part = (Map) parts.get(0);
-                    return (String) part.get("text");
-                }
-            }
-            return "AI failed to generate a response.";
+            return response.text();
         } catch (Exception e) {
-            log.error("Gemini API error: {}", e.getMessage());
+            log.error("Google GenAI Error: {}", e.getMessage());
             return "Internal error calling AI service: " + e.getMessage();
         }
     }
