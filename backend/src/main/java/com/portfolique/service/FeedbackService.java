@@ -22,6 +22,7 @@ public class FeedbackService {
     private final FeedbackRepository feedbackRepository;
     private final PortfolioRepository portfolioRepository;
     private final NotificationService notificationService;
+    private final AiService aiService;
 
     @Transactional(readOnly = true)
     public Page<FeedbackResponse> getFeedbacksForPortfolio(Long portfolioId, Pageable pageable) {
@@ -63,6 +64,13 @@ public class FeedbackService {
         Feedback feedback = feedbackRepository.findById(feedbackId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Feedback not found"));
         return mapToResponse(feedback);
+    }
+
+    @Transactional(readOnly = true)
+    public String summarizeFeedback(Long feedbackId) {
+        Feedback feedback = feedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Feedback not found"));
+        return aiService.summarizeFeedback(feedback);
     }
 
     @Transactional

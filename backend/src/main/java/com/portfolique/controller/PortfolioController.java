@@ -5,6 +5,10 @@ import com.portfolique.dto.response.PortfolioResponse;
 import com.portfolique.entity.User;
 import com.portfolique.repository.UserRepository;
 import com.portfolique.service.PortfolioService;
+import com.portfolique.service.AiService;
+import com.portfolique.service.PortfolioAnalyzerService;
+import com.portfolique.dto.response.PortfolioResponse;
+import com.portfolique.dto.response.AiReviewResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,10 +28,15 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
     private final UserRepository userRepository;
+    private final PortfolioAnalyzerService portfolioAnalyzerService;
+    private final AiService aiService;
 
-    public PortfolioController(PortfolioService portfolioService, UserRepository userRepository) {
+    public PortfolioController(PortfolioService portfolioService, UserRepository userRepository, 
+                               PortfolioAnalyzerService portfolioAnalyzerService, AiService aiService) {
         this.portfolioService = portfolioService;
         this.userRepository = userRepository;
+        this.portfolioAnalyzerService = portfolioAnalyzerService;
+        this.aiService = aiService;
     }
 
     @GetMapping("/")
@@ -77,6 +86,27 @@ public class PortfolioController {
             @RequestParam("q") String query,
             @PageableDefault(size = 9) Pageable pageable) {
         return ResponseEntity.ok(portfolioService.searchPortfolios(query, pageable));
+    }
+
+    @GetMapping("/{id}/ai-review")
+    public ResponseEntity<com.portfolique.dto.response.AiReviewResponse> getAiReview(@PathVariable Long id) {
+        PortfolioResponse portfolio = portfolioService.getPortfolioById(id);
+        PortfolioAnalyzerService.PortfolioAnalysis analysis = portfolioAnalyzerService.analyzePortfolio(portfolio.getUrl());
+        
+        if (analysis.getError() != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Scraping failed: " + analysis.getError());
+        }
+
+        String reviewText = aiService.generatePortfolioReview(analysis);
+
+        return ResponseEntity.ok(com.portfolique.dto.response.AiReviewResponse.builder()
+                .portfolioId(id)
+                .portfolioUrl(portfolio.getUrl())
+                .pageTitle(analysis.getTitle())
+                .linkCount(analysis.getLinks().size())
+                .imageCount(analysis.getImages().size())
+                .review(reviewText)
+                .build());
     }
 
     private User getCurrentUser(UserDetails userDetails) {

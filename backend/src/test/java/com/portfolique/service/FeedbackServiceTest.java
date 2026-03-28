@@ -34,6 +34,9 @@ public class FeedbackServiceTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private AiService aiService;
+
     @InjectMocks
     private FeedbackService feedbackService;
 

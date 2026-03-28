@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
@@ -24,6 +26,7 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
     private final UserRepository userRepository;
+    private final com.portfolique.service.AiService aiService;
 
     @GetMapping("/portfolios/{id}/feedbacks")
     public ResponseEntity<Page<FeedbackResponse>> getFeedbacksForPortfolio(
@@ -45,6 +48,12 @@ public class FeedbackController {
     @GetMapping("/feedbacks/{feedbackId}")
     public ResponseEntity<FeedbackResponse> getFeedbackById(@PathVariable Long feedbackId) {
         return ResponseEntity.ok(feedbackService.getFeedbackById(feedbackId));
+    }
+
+    @GetMapping("/feedbacks/{feedbackId}/summarize")
+    public ResponseEntity<Map<String, String>> summarizeFeedback(@PathVariable Long feedbackId) {
+        String summary = feedbackService.summarizeFeedback(feedbackId);
+        return ResponseEntity.ok(Map.of("summary", summary));
     }
 
     @DeleteMapping("/feedbacks/{feedbackId}")
