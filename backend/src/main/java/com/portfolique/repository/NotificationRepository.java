@@ -14,4 +14,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     Page<Notification> findByRecipientOrderByCreatedAtDesc(User recipient, Pageable pageable);
     Long countByRecipientAndIsReadFalse(User recipient);
     List<Notification> findTop5ByRecipientAndIsReadFalseOrderByCreatedAtDesc(User recipient);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE Notification n SET n.isRead = true WHERE n.recipient = :recipient AND n.isRead = false")
+    void markAllAsReadForRecipient(@org.springframework.data.repository.query.Param("recipient") User recipient);
 }
