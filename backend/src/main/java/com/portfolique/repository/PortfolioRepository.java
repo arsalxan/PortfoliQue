@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     Page<Portfolio> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+    Page<Portfolio> findByUser_UsernameContainingIgnoreCase(String username, Pageable pageable);
     
     @Query("SELECT p FROM Portfolio p JOIN p.user u WHERE " +
            "LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
