@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AdminDashboardResponse {
-    private Long totalUsers;
-    private Long totalPortfolios;
-    private Long totalFeedbacks;
+  private Long totalUsers;
+  private Long totalPortfolios;
+  private Long totalFeedbacks;
 }

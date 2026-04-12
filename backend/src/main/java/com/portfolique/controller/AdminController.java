@@ -25,55 +25,57 @@ import org.springframework.web.server.ResponseStatusException;
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
 
-    private final AdminService adminService;
-    private final UserRepository userRepository;
+  private final AdminService adminService;
+  private final UserRepository userRepository;
 
-    @GetMapping("/dashboard")
-    public ResponseEntity<AdminDashboardResponse> getDashboardStats() {
-        return ResponseEntity.ok(adminService.getDashboardStats());
-    }
+  @GetMapping("/dashboard")
+  public ResponseEntity<AdminDashboardResponse> getDashboardStats() {
+    return ResponseEntity.ok(adminService.getDashboardStats());
+  }
 
-    @GetMapping("/users")
-    public ResponseEntity<Page<UserResponse>> getUsers(
-            @RequestParam(required = false) String search,
-            @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(adminService.getUsers(search, pageable));
-    }
+  @GetMapping("/users")
+  public ResponseEntity<Page<UserResponse>> getUsers(
+      @RequestParam(required = false) String search,
+      @PageableDefault(size = 20) Pageable pageable) {
+    return ResponseEntity.ok(adminService.getUsers(search, pageable));
+  }
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<Void> deleteUser(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails currentUser) {
-        User user = userRepository.findByUsername(currentUser.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin not found"));
-        adminService.deleteUser(id, user.getId());
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/users/{id}")
+  public ResponseEntity<Void> deleteUser(
+      @PathVariable Long id, @AuthenticationPrincipal UserDetails currentUser) {
+    User user =
+        userRepository
+            .findByUsername(currentUser.getUsername())
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin not found"));
+    adminService.deleteUser(id, user.getId());
+    return ResponseEntity.noContent().build();
+  }
 
-    @GetMapping("/portfolios")
-    public ResponseEntity<Page<PortfolioResponse>> getPortfolios(
-            @RequestParam(required = false) String search,
-            @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(adminService.getPortfolios(search, pageable));
-    }
+  @GetMapping("/portfolios")
+  public ResponseEntity<Page<PortfolioResponse>> getPortfolios(
+      @RequestParam(required = false) String search,
+      @PageableDefault(size = 20) Pageable pageable) {
+    return ResponseEntity.ok(adminService.getPortfolios(search, pageable));
+  }
 
-    @DeleteMapping("/portfolios/{id}")
-    public ResponseEntity<Void> deletePortfolio(@PathVariable Long id) {
-        adminService.deletePortfolio(id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/portfolios/{id}")
+  public ResponseEntity<Void> deletePortfolio(@PathVariable Long id) {
+    adminService.deletePortfolio(id);
+    return ResponseEntity.noContent().build();
+  }
 
-    @GetMapping("/feedbacks")
-    public ResponseEntity<Page<FeedbackResponse>> getFeedbacks(
-            @RequestParam(required = false) String givenBy,
-            @RequestParam(required = false) String content,
-            @PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(adminService.getFeedbacks(givenBy, content, pageable));
-    }
+  @GetMapping("/feedbacks")
+  public ResponseEntity<Page<FeedbackResponse>> getFeedbacks(
+      @RequestParam(required = false) String givenBy,
+      @RequestParam(required = false) String content,
+      @PageableDefault(size = 20) Pageable pageable) {
+    return ResponseEntity.ok(adminService.getFeedbacks(givenBy, content, pageable));
+  }
 
-    @DeleteMapping("/feedbacks/{id}")
-    public ResponseEntity<Void> deleteFeedback(@PathVariable Long id) {
-        adminService.deleteFeedback(id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/feedbacks/{id}")
+  public ResponseEntity<Void> deleteFeedback(@PathVariable Long id) {
+    adminService.deleteFeedback(id);
+    return ResponseEntity.noContent().build();
+  }
 }

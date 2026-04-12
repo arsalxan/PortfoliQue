@@ -1,15 +1,28 @@
 package com.portfolique.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.portfolique.dto.request.FeedbackRequest;
 import com.portfolique.dto.response.FeedbackResponse;
 import com.portfolique.entity.Role;
 import com.portfolique.entity.User;
 import com.portfolique.repository.UserRepository;
+import com.portfolique.security.CustomUserDetailsService;
 import com.portfolique.security.JwtAuthenticationFilter;
+import com.portfolique.security.JwtService;
 import com.portfolique.security.SecurityConfig;
-import com.portfolique.service.FeedbackService;
 import com.portfolique.service.AiService;
+import com.portfolique.service.FeedbackService;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -25,153 +38,147 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @WebMvcTest(FeedbackController.class)
 @Import({SecurityConfig.class, JwtAuthenticationFilter.class})
 @AutoConfigureMockMvc(addFilters = true)
 public class FeedbackControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-    @MockitoBean
-    private FeedbackService feedbackService;
+  @MockitoBean private FeedbackService feedbackService;
 
-    @MockitoBean
-    private UserRepository userRepository;
+  @MockitoBean private UserRepository userRepository;
 
-    @MockitoBean
-    private AiService aiService;
+  @MockitoBean private AiService aiService;
 
-    // Security constraints
-    @MockitoBean
-    private com.portfolique.security.JwtService jwtService;
-    
-    @MockitoBean
-    private com.portfolique.security.CustomUserDetailsService userDetailsService;
+  // Security constraints
+  @MockitoBean private JwtService jwtService;
 
-    @Test
-    void testGetFeedbacksForPortfolio_OpenAccess() throws Exception {
-        FeedbackResponse res = FeedbackResponse.builder().id(1L).design("Great design").build();
-        when(feedbackService.getFeedbacksForPortfolio(eq(1L), any(Pageable.class)))
-                .thenReturn(new PageImpl<>(List.of(res)));
+  @MockitoBean private CustomUserDetailsService userDetailsService;
 
-        mockMvc.perform(get("/api/v1/portfolios/1/feedbacks"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].design").value("Great design"));
-    }
+  @Test
+  void testGetFeedbacksForPortfolio_OpenAccess() throws Exception {
+    FeedbackResponse res = FeedbackResponse.builder().id(1L).design("Great design").build();
+    when(feedbackService.getFeedbacksForPortfolio(eq(1L), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(res)));
 
-    @Test
-    @WithMockUser(username = "testuser", roles = "USER")
-    void testCreateFeedback_Success() throws Exception {
-        User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+    mockMvc
+        .perform(get("/api/v1/portfolios/1/feedbacks"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].design").value("Great design"));
+  }
 
-        FeedbackRequest req = new FeedbackRequest();
-        req.setDesign("This design looks absolutely fantastic and I love it!");
-        
-        FeedbackResponse res = FeedbackResponse.builder().id(1L).design("This design looks absolutely fantastic and I love it!").build();
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testCreateFeedback_Success() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
 
-        when(feedbackService.createFeedback(eq(1L), any(), any(User.class))).thenReturn(res);
+    FeedbackRequest req = new FeedbackRequest();
+    req.setDesign("This design looks absolutely fantastic and I love it!");
 
-        mockMvc.perform(post("/api/v1/portfolios/1/feedbacks")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.design").value("This design looks absolutely fantastic and I love it!"));
-    }
+    FeedbackResponse res =
+        FeedbackResponse.builder()
+            .id(1L)
+            .design("This design looks absolutely fantastic and I love it!")
+            .build();
 
-    @Test
-    @WithAnonymousUser
-    void testCreateFeedback_Unauthorized() throws Exception {
-        FeedbackRequest req = new FeedbackRequest();
-        req.setDesign("This design looks absolutely fantastic and I love it!");
+    when(feedbackService.createFeedback(eq(1L), any(), any(User.class))).thenReturn(res);
 
-        mockMvc.perform(post("/api/v1/portfolios/1/feedbacks")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isForbidden());
-    }
+    mockMvc
+        .perform(
+            post("/api/v1/portfolios/1/feedbacks")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isCreated())
+        .andExpect(
+            jsonPath("$.design").value("This design looks absolutely fantastic and I love it!"));
+  }
 
-    @Test
-    @WithMockUser(username = "testuser", roles = "USER")
-    void testCreateFeedback_CannotFeedbackOwnPortfolio() throws Exception {
-        User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+  @Test
+  @WithAnonymousUser
+  void testCreateFeedback_Unauthorized() throws Exception {
+    FeedbackRequest req = new FeedbackRequest();
+    req.setDesign("This design looks absolutely fantastic and I love it!");
 
-        FeedbackRequest req = new FeedbackRequest();
-        req.setDesign("This design looks absolutely fantastic and I love it!");
+    mockMvc
+        .perform(
+            post("/api/v1/portfolios/1/feedbacks")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isForbidden());
+  }
 
-        when(feedbackService.createFeedback(eq(1L), any(), any(User.class)))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot feedback your own portfolio"));
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testCreateFeedback_CannotFeedbackOwnPortfolio() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
 
-        mockMvc.perform(post("/api/v1/portfolios/1/feedbacks")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(req)))
-                .andExpect(status().isBadRequest());
-    }
+    FeedbackRequest req = new FeedbackRequest();
+    req.setDesign("This design looks absolutely fantastic and I love it!");
 
-    @Test
-    void testGetFeedbackById_OpenAccess() throws Exception {
-        FeedbackResponse res = FeedbackResponse.builder().id(1L).design("Good").build();
-        when(feedbackService.getFeedbackById(1L)).thenReturn(res);
+    when(feedbackService.createFeedback(eq(1L), any(), any(User.class)))
+        .thenThrow(
+            new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, "Cannot feedback your own portfolio"));
 
-        mockMvc.perform(get("/api/v1/feedbacks/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.design").value("Good"));
-    }
+    mockMvc
+        .perform(
+            post("/api/v1/portfolios/1/feedbacks")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+        .andExpect(status().isBadRequest());
+  }
 
-    @Test
-    void testSummarizeFeedback_OpenAccess() throws Exception {
-        when(feedbackService.summarizeFeedback(1L)).thenReturn("A short summary");
+  @Test
+  void testGetFeedbackById_OpenAccess() throws Exception {
+    FeedbackResponse res = FeedbackResponse.builder().id(1L).design("Good").build();
+    when(feedbackService.getFeedbackById(1L)).thenReturn(res);
 
-        mockMvc.perform(get("/api/v1/feedbacks/1/summarize"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.summary").value("A short summary"));
-    }
+    mockMvc
+        .perform(get("/api/v1/feedbacks/1"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.design").value("Good"));
+  }
 
-    @Test
-    @WithMockUser(username = "testuser", roles = "USER")
-    void testDeleteFeedback_Success() throws Exception {
-        User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
-        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+  @Test
+  void testSummarizeFeedback_OpenAccess() throws Exception {
+    when(feedbackService.summarizeFeedback(1L)).thenReturn("A short summary");
 
-        mockMvc.perform(delete("/api/v1/feedbacks/1")
-                        .with(csrf()))
-                .andExpect(status().isNoContent());
+    mockMvc
+        .perform(get("/api/v1/feedbacks/1/summarize"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.summary").value("A short summary"));
+  }
 
-        verify(feedbackService).deleteFeedback(eq(1L), any(User.class));
-    }
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testDeleteFeedback_Success() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
 
-    @Test
-    @WithMockUser(username = "hacker", roles = "USER")
-    void testDeleteFeedback_ForbiddenWhenNotOwner() throws Exception {
-        User mockUser = User.builder().id(2L).username("hacker").role(Role.USER).build();
-        when(userRepository.findByUsername("hacker")).thenReturn(Optional.of(mockUser));
+    mockMvc.perform(delete("/api/v1/feedbacks/1").with(csrf())).andExpect(status().isNoContent());
 
-        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized"))
-                .when(feedbackService).deleteFeedback(eq(1L), any(User.class));
+    verify(feedbackService).deleteFeedback(eq(1L), any(User.class));
+  }
 
-        mockMvc.perform(delete("/api/v1/feedbacks/1")
-                        .with(csrf()))
-                .andExpect(status().isForbidden());
-    }
+  @Test
+  @WithMockUser(username = "hacker", roles = "USER")
+  void testDeleteFeedback_ForbiddenWhenNotOwner() throws Exception {
+    User mockUser = User.builder().id(2L).username("hacker").role(Role.USER).build();
+    when(userRepository.findByUsername("hacker")).thenReturn(Optional.of(mockUser));
+
+    doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized"))
+        .when(feedbackService)
+        .deleteFeedback(eq(1L), any(User.class));
+
+    mockMvc.perform(delete("/api/v1/feedbacks/1").with(csrf())).andExpect(status().isForbidden());
+  }
 }

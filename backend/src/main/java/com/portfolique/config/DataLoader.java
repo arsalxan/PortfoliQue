@@ -14,25 +14,26 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DataLoader implements CommandLineRunner {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public void run(String... args) {
-        if (!userRepository.existsByUsername("admin")) {
-            log.info("Seeding admin user...");
-            User admin = User.builder()
-                    .username("admin")
-                    .email("admin@gmail.com")
-                    .fullName("System Administrator")
-                    .password(passwordEncoder.encode("admin123"))
-                    .role(Role.ADMIN)
-                    .emailVerified(true)
-                    .build();
-            userRepository.save(admin);
-            log.info("Admin user created successfully.");
-        } else {
-            log.info("Admin user already exists. Skipping seed.");
-        }
+  @Override
+  public void run(String... args) {
+    if (!userRepository.existsByUsername("admin")) {
+      log.info("Seeding admin user...");
+      User admin =
+          User.builder()
+              .username("admin")
+              .email("admin@gmail.com")
+              .fullName("System Administrator")
+              .password(passwordEncoder.encode("admin123"))
+              .role(Role.ADMIN)
+              .emailVerified(true)
+              .build();
+      userRepository.save(admin);
+      log.info("Admin user created successfully.");
+    } else {
+      log.info("Admin user already exists. Skipping seed.");
     }
+  }
 }

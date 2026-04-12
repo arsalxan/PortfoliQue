@@ -20,111 +20,115 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AdminService {
 
-    private final UserRepository userRepository;
-    private final PortfolioRepository portfolioRepository;
-    private final FeedbackRepository feedbackRepository;
+  private final UserRepository userRepository;
+  private final PortfolioRepository portfolioRepository;
+  private final FeedbackRepository feedbackRepository;
 
-    public AdminDashboardResponse getDashboardStats() {
-        return AdminDashboardResponse.builder()
-                .totalUsers(userRepository.count())
-                .totalPortfolios(portfolioRepository.count())
-                .totalFeedbacks(feedbackRepository.count())
-                .build();
-    }
+  public AdminDashboardResponse getDashboardStats() {
+    return AdminDashboardResponse.builder()
+        .totalUsers(userRepository.count())
+        .totalPortfolios(portfolioRepository.count())
+        .totalFeedbacks(feedbackRepository.count())
+        .build();
+  }
 
-    public Page<UserResponse> getUsers(String search, Pageable pageable) {
-        Page<User> users;
-        if (search == null || search.trim().isEmpty()) {
-            users = userRepository.findAll(pageable);
-        } else {
-            users = userRepository.findByUsernameContainingIgnoreCase(search, pageable);
-        }
-        return users.map(this::mapToUserResponse);
+  public Page<UserResponse> getUsers(String search, Pageable pageable) {
+    Page<User> users;
+    if (search == null || search.trim().isEmpty()) {
+      users = userRepository.findAll(pageable);
+    } else {
+      users = userRepository.findByUsernameContainingIgnoreCase(search, pageable);
     }
+    return users.map(this::mapToUserResponse);
+  }
 
-    @Transactional
-    public void deleteUser(Long userId, Long currentAdminId) {
-        if (userId.equals(currentAdminId)) {
-            throw new IllegalArgumentException("Cannot delete your own account");
-        }
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        userRepository.delete(user);
+  @Transactional
+  public void deleteUser(Long userId, Long currentAdminId) {
+    if (userId.equals(currentAdminId)) {
+      throw new IllegalArgumentException("Cannot delete your own account");
     }
+    User user =
+        userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    userRepository.delete(user);
+  }
 
-    public Page<PortfolioResponse> getPortfolios(String search, Pageable pageable) {
-        Page<Portfolio> portfolios;
-        if (search == null || search.trim().isEmpty()) {
-            portfolios = portfolioRepository.findAll(pageable);
-        } else {
-            portfolios = portfolioRepository.findByUser_UsernameContainingIgnoreCase(search, pageable);
-        }
-        return portfolios.map(this::mapToPortfolioResponse);
+  public Page<PortfolioResponse> getPortfolios(String search, Pageable pageable) {
+    Page<Portfolio> portfolios;
+    if (search == null || search.trim().isEmpty()) {
+      portfolios = portfolioRepository.findAll(pageable);
+    } else {
+      portfolios = portfolioRepository.findByUser_UsernameContainingIgnoreCase(search, pageable);
     }
+    return portfolios.map(this::mapToPortfolioResponse);
+  }
 
-    @Transactional
-    public void deletePortfolio(Long portfolioId) {
-        Portfolio portfolio = portfolioRepository.findById(portfolioId)
-                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
-        portfolioRepository.delete(portfolio);
-    }
+  @Transactional
+  public void deletePortfolio(Long portfolioId) {
+    Portfolio portfolio =
+        portfolioRepository
+            .findById(portfolioId)
+            .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+    portfolioRepository.delete(portfolio);
+  }
 
-    public Page<FeedbackResponse> getFeedbacks(String givenBy, String content, Pageable pageable) {
-        Page<Feedback> feedbacks = feedbackRepository.searchByFilters(givenBy, content, pageable);
-        return feedbacks.map(this::mapToFeedbackResponse);
-    }
+  public Page<FeedbackResponse> getFeedbacks(String givenBy, String content, Pageable pageable) {
+    Page<Feedback> feedbacks = feedbackRepository.searchByFilters(givenBy, content, pageable);
+    return feedbacks.map(this::mapToFeedbackResponse);
+  }
 
-    @Transactional
-    public void deleteFeedback(Long feedbackId) {
-        Feedback feedback = feedbackRepository.findById(feedbackId)
-                .orElseThrow(() -> new RuntimeException("Feedback not found"));
-        feedbackRepository.delete(feedback);
-    }
+  @Transactional
+  public void deleteFeedback(Long feedbackId) {
+    Feedback feedback =
+        feedbackRepository
+            .findById(feedbackId)
+            .orElseThrow(() -> new RuntimeException("Feedback not found"));
+    feedbackRepository.delete(feedback);
+  }
 
-    private UserResponse mapToUserResponse(User user) {
-        return UserResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .profilePicture(user.getProfilePicture())
-                .role(user.getRole().name())
-                .emailVerified(user.isEmailVerified())
-                .createdAt(user.getCreatedAt())
-                .build();
-    }
+  private UserResponse mapToUserResponse(User user) {
+    return UserResponse.builder()
+        .id(user.getId())
+        .username(user.getUsername())
+        .email(user.getEmail())
+        .fullName(user.getFullName())
+        .profilePicture(user.getProfilePicture())
+        .role(user.getRole().name())
+        .emailVerified(user.isEmailVerified())
+        .createdAt(user.getCreatedAt())
+        .build();
+  }
 
-    private PortfolioResponse mapToPortfolioResponse(Portfolio portfolio) {
-        return PortfolioResponse.builder()
-                .id(portfolio.getId())
-                .description(portfolio.getDescription())
-                .url(portfolio.getUrl())
-                .screenshot(portfolio.getScreenshot())
-                .userId(portfolio.getUser().getId())
-                .username(portfolio.getUser().getUsername())
-                .fullName(portfolio.getUser().getFullName())
-                .feedbackCount((long) portfolio.getFeedbacks().size())
-                .createdAt(portfolio.getCreatedAt())
-                .build();
-    }
+  private PortfolioResponse mapToPortfolioResponse(Portfolio portfolio) {
+    return PortfolioResponse.builder()
+        .id(portfolio.getId())
+        .description(portfolio.getDescription())
+        .url(portfolio.getUrl())
+        .screenshot(portfolio.getScreenshot())
+        .userId(portfolio.getUser().getId())
+        .username(portfolio.getUser().getUsername())
+        .fullName(portfolio.getUser().getFullName())
+        .feedbackCount((long) portfolio.getFeedbacks().size())
+        .createdAt(portfolio.getCreatedAt())
+        .build();
+  }
 
-    private FeedbackResponse mapToFeedbackResponse(Feedback feedback) {
-        return FeedbackResponse.builder()
-                .id(feedback.getId())
-                .design(feedback.getDesign())
-                .responsiveness(feedback.getResponsiveness())
-                .content(feedback.getContent())
-                .uxFlow(feedback.getUxFlow())
-                .accessibility(feedback.getAccessibility())
-                .technicalPerformance(feedback.getTechnicalPerformance())
-                .additional(feedback.getAdditional())
-                .userId(feedback.getUser().getId())
-                .username(feedback.getUser().getUsername())
-                .fullName(feedback.getUser().getFullName())
-                .portfolioId(feedback.getPortfolio().getId())
-                .portfolioOwnerUsername(feedback.getPortfolio().getUser().getUsername())
-                .portfolioOwnerFullName(feedback.getPortfolio().getUser().getFullName())
-                .createdAt(feedback.getCreatedAt())
-                .build();
-    }
+  private FeedbackResponse mapToFeedbackResponse(Feedback feedback) {
+    return FeedbackResponse.builder()
+        .id(feedback.getId())
+        .design(feedback.getDesign())
+        .responsiveness(feedback.getResponsiveness())
+        .content(feedback.getContent())
+        .uxFlow(feedback.getUxFlow())
+        .accessibility(feedback.getAccessibility())
+        .technicalPerformance(feedback.getTechnicalPerformance())
+        .additional(feedback.getAdditional())
+        .userId(feedback.getUser().getId())
+        .username(feedback.getUser().getUsername())
+        .fullName(feedback.getUser().getFullName())
+        .portfolioId(feedback.getPortfolio().getId())
+        .portfolioOwnerUsername(feedback.getPortfolio().getUser().getUsername())
+        .portfolioOwnerFullName(feedback.getPortfolio().getUser().getFullName())
+        .createdAt(feedback.getCreatedAt())
+        .build();
+  }
 }

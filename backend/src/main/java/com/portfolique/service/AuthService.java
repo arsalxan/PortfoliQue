@@ -7,107 +7,113 @@ import com.portfolique.entity.Role;
 import com.portfolique.entity.User;
 import com.portfolique.repository.UserRepository;
 import com.portfolique.security.JwtService;
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
-    private final EmailService emailService;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtService jwtService;
+  private final AuthenticationManager authenticationManager;
+  private final EmailService emailService;
 
-    public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername().toLowerCase())) {
-            throw new RuntimeException("Username already exists");
-        }
-        if (userRepository.existsByEmail(request.getEmail().toLowerCase())) {
-            throw new RuntimeException("Email already exists");
-        }
-        
-        String email = request.getEmail().toLowerCase();
-        if (!email.endsWith("@gmail.com") && !email.endsWith("@outlook.com") && !email.endsWith("@chitkara.edu.in")) {
-            throw new RuntimeException("Email domain not permitted");
-        }
-
-        String token = UUID.randomUUID().toString();
-
-        User user = User.builder()
-                .username(request.getUsername().toLowerCase())
-                .email(email)
-                .fullName(request.getFullName())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .emailVerified(false)
-                .emailVerificationToken(token)
-                .emailVerificationTokenExpires(LocalDateTime.now().plusHours(1))
-                .role(Role.USER)
-                .build();
-
-        userRepository.save(user);
-        emailService.sendVerificationEmail(user.getEmail(), token);
-
-        return AuthResponse.builder()
-                .message("User registered successfully. Please check your email to verify your account.")
-                .build();
+  public AuthResponse register(RegisterRequest request) {
+    if (userRepository.existsByUsername(request.getUsername().toLowerCase())) {
+      throw new RuntimeException("Username already exists");
+    }
+    if (userRepository.existsByEmail(request.getEmail().toLowerCase())) {
+      throw new RuntimeException("Email already exists");
     }
 
-    public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername().toLowerCase(), request.getPassword())
-        );
-
-        User user = userRepository.findByUsername(request.getUsername().toLowerCase())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!user.isEmailVerified()) {
-            throw new RuntimeException("Please verify your email before logging in.");
-        }
-
-        String jwt = jwtService.generateToken(user);
-
-        return AuthResponse.builder()
-                .token(jwt)
-                .username(user.getUsername())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .role(user.getRole().name())
-                .profilePicture(user.getProfilePicture())
-                .message("Login successful")
-                .build();
+    String email = request.getEmail().toLowerCase();
+    if (!email.endsWith("@gmail.com")
+        && !email.endsWith("@outlook.com")
+        && !email.endsWith("@chitkara.edu.in")) {
+      throw new RuntimeException("Email domain not permitted");
     }
 
-    public AuthResponse verifyEmail(String token) {
-        User user = userRepository.findByEmailVerificationToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid or expired verification token"));
+    String token = UUID.randomUUID().toString();
 
-        if (user.getEmailVerificationTokenExpires().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Verification token has expired");
-        }
+    User user =
+        User.builder()
+            .username(request.getUsername().toLowerCase())
+            .email(email)
+            .fullName(request.getFullName())
+            .password(passwordEncoder.encode(request.getPassword()))
+            .emailVerified(false)
+            .emailVerificationToken(token)
+            .emailVerificationTokenExpires(LocalDateTime.now().plusHours(1))
+            .role(Role.USER)
+            .build();
 
-        user.setEmailVerified(true);
-        user.setEmailVerificationToken(null);
-        user.setEmailVerificationTokenExpires(null);
-        userRepository.save(user);
+    userRepository.save(user);
+    emailService.sendVerificationEmail(user.getEmail(), token);
 
-        String jwt = jwtService.generateToken(user);
+    return AuthResponse.builder()
+        .message("User registered successfully. Please check your email to verify your account.")
+        .build();
+  }
 
-        return AuthResponse.builder()
-                .token(jwt)
-                .username(user.getUsername())
-                .fullName(user.getFullName())
-                .email(user.getEmail())
-                .role(user.getRole().name())
-                .profilePicture(user.getProfilePicture())
-                .message("Email verified successfully")
-                .build();
+  public AuthResponse login(LoginRequest request) {
+    authenticationManager.authenticate(
+        new UsernamePasswordAuthenticationToken(
+            request.getUsername().toLowerCase(), request.getPassword()));
+
+    User user =
+        userRepository
+            .findByUsername(request.getUsername().toLowerCase())
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    if (!user.isEmailVerified()) {
+      throw new RuntimeException("Please verify your email before logging in.");
     }
+
+    String jwt = jwtService.generateToken(user);
+
+    return AuthResponse.builder()
+        .token(jwt)
+        .username(user.getUsername())
+        .fullName(user.getFullName())
+        .email(user.getEmail())
+        .role(user.getRole().name())
+        .profilePicture(user.getProfilePicture())
+        .message("Login successful")
+        .build();
+  }
+
+  public AuthResponse verifyEmail(String token) {
+    User user =
+        userRepository
+            .findByEmailVerificationToken(token)
+            .orElseThrow(() -> new RuntimeException("Invalid or expired verification token"));
+
+    if (user.getEmailVerificationTokenExpires().isBefore(LocalDateTime.now())) {
+      throw new RuntimeException("Verification token has expired");
+    }
+
+    user.setEmailVerified(true);
+    user.setEmailVerificationToken(null);
+    user.setEmailVerificationTokenExpires(null);
+    userRepository.save(user);
+
+    String jwt = jwtService.generateToken(user);
+
+    return AuthResponse.builder()
+        .token(jwt)
+        .username(user.getUsername())
+        .fullName(user.getFullName())
+        .email(user.getEmail())
+        .role(user.getRole().name())
+        .profilePicture(user.getProfilePicture())
+        .message("Email verified successfully")
+        .build();
+  }
 }
