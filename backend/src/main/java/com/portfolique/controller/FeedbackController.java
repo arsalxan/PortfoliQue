@@ -56,6 +56,15 @@ public class FeedbackController {
         return ResponseEntity.ok(Map.of("summary", summary));
     }
 
+    @PutMapping("/feedbacks/{feedbackId}")
+    public ResponseEntity<FeedbackResponse> updateFeedback(
+            @PathVariable Long feedbackId,
+            @Valid @RequestBody FeedbackRequest req,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User currentUser = getCurrentUser(userDetails);
+        return ResponseEntity.ok(feedbackService.updateFeedback(feedbackId, req, currentUser));
+    }
+
     @DeleteMapping("/feedbacks/{feedbackId}")
     public ResponseEntity<Void> deleteFeedback(
             @PathVariable Long feedbackId,

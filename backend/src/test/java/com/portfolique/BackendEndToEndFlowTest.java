@@ -5,6 +5,7 @@ import com.portfolique.dto.request.LoginRequest;
 import com.portfolique.dto.request.PortfolioRequest;
 import com.portfolique.dto.request.RegisterRequest;
 import com.portfolique.dto.response.AuthResponse;
+import com.portfolique.dto.response.FeedbackResponse;
 import com.portfolique.dto.response.PortfolioResponse;
 import com.portfolique.entity.Feedback;
 import com.portfolique.entity.Notification;
@@ -136,6 +137,40 @@ public class BackendEndToEndFlowTest {
         assertFalse(notification.isRead(), "Notification should be unread initially");
         
         System.out.println("-> Notification successfully verified for User A!");
+
+        // 8. Security/RBAC Check: Ensure only User B can edit their feedback
+        RegisterRequest registerReqC = new RegisterRequest();
+        registerReqC.setUsername("e2e_random");
+        registerReqC.setEmail("e2e_random@gmail.com");
+        registerReqC.setPassword("TestPass123!");
+        registerReqC.setFullName("E2E Random User");
+        authService.register(registerReqC);
+        User userC = userRepository.findByUsername("e2e_random").orElseThrow();
+
+        Long targetFeedbackId = storedFeedbacks.get(0).getId();
+        FeedbackRequest updateReq = new FeedbackRequest();
+        updateReq.setContent("Tampered content");
+
+        // User C (Random) tries to edit User B's feedback -> Should Fail
+        org.springframework.web.server.ResponseStatusException ex1 = assertThrows(
+            org.springframework.web.server.ResponseStatusException.class, 
+            () -> feedbackService.updateFeedback(targetFeedbackId, updateReq, userC)
+        );
+        assertEquals(org.springframework.http.HttpStatus.FORBIDDEN, ex1.getStatusCode());
+
+        // User A (Portfolio Owner) tries to edit User B's feedback -> Should Fail
+        org.springframework.web.server.ResponseStatusException ex2 = assertThrows(
+            org.springframework.web.server.ResponseStatusException.class, 
+            () -> feedbackService.updateFeedback(targetFeedbackId, updateReq, userA)
+        );
+        assertEquals(org.springframework.http.HttpStatus.FORBIDDEN, ex2.getStatusCode());
+
+        // User B (Author) tries to edit THEIR OWN feedback -> Should Succeed
+        updateReq.setContent("Legitimate Update by Author!");
+        FeedbackResponse updatedRes = feedbackService.updateFeedback(targetFeedbackId, updateReq, userB);
+        assertEquals("Legitimate Update by Author!", updatedRes.getContent());
+        System.out.println("-> RBAC Update Security verified! Only authors can edit.");
+
         System.out.println("=== END TO END FLOW TEST COMPLETED SUCCESSFULLY ===");
     }
 }

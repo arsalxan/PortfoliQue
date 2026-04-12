@@ -74,6 +74,27 @@ public class FeedbackService {
     }
 
     @Transactional
+    public FeedbackResponse updateFeedback(Long feedbackId, FeedbackRequest req, User currentUser) {
+        Feedback feedback = feedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Feedback not found"));
+
+        if (!feedback.getUser().getId().equals(currentUser.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Not authorized to edit this feedback. Only the author can edit.");
+        }
+
+        feedback.setDesign(req.getDesign());
+        feedback.setResponsiveness(req.getResponsiveness());
+        feedback.setContent(req.getContent());
+        feedback.setUxFlow(req.getUxFlow());
+        feedback.setAccessibility(req.getAccessibility());
+        feedback.setTechnicalPerformance(req.getTechnicalPerformance());
+        feedback.setAdditional(req.getAdditional());
+
+        Feedback saved = feedbackRepository.save(feedback);
+        return mapToResponse(saved);
+    }
+
+    @Transactional
     public void deleteFeedback(Long feedbackId, User currentUser) {
         Feedback feedback = feedbackRepository.findById(feedbackId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Feedback not found"));
