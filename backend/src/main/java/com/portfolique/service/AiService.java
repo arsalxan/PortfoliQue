@@ -1,11 +1,10 @@
 package com.portfolique.service;
 
-import com.google.genai.Client;
-import com.google.genai.types.GenerateContentResponse;
 import com.portfolique.entity.Feedback;
 import com.portfolique.service.PortfolioAnalyzerService.PortfolioAnalysis;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,14 +13,10 @@ import java.util.List;
 @Slf4j
 public class AiService {
 
-    private final Client client;
+    private final ChatClient chatClient;
 
-    public AiService(@Value("${app.gemini.api-key}") String apiKey) {
-        // Using the EXACT client initialization pattern requested by the user
-        // although we inject the key from properties for Spring compatibility.
-        this.client = new Client.Builder()
-                .apiKey(apiKey)
-                .build();
+    public AiService(ChatModel chatModel) {
+        this.chatClient = ChatClient.builder(chatModel).build();
     }
 
     public String generatePortfolioReview(PortfolioAnalysis analysis) {
@@ -52,16 +47,12 @@ public class AiService {
 
     private String callGemini(String prompt) {
         try {
-            // Using the EXACT generation pattern requested by the user
-            GenerateContentResponse response = client.models.generateContent(
-                    "gemini-3-flash-preview",
-                    prompt,
-                    null
-            );
-
-            return response.text();
+            return chatClient.prompt()
+                    .user(prompt)
+                    .call()
+                    .content();
         } catch (Exception e) {
-            log.error("Google GenAI Error: {}", e.getMessage());
+            log.error("Spring AI Gemini Error: {}", e.getMessage());
             return "Internal error calling AI service: " + e.getMessage();
         }
     }
