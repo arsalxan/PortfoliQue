@@ -1,0 +1,644 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+    --background:      #F9FAFB;
+    --card-surface:    #FFFFFF;
+    --text-primary:    #111827;
+    --text-secondary:  #6B7280;
+    --primary:         #2563EB;
+    --primary-hover:   #1D4ED8;
+    --border:          #E5E7EB;
+    --success:           #48BB78;
+    --error:             #F56565;
+    --warning:           #ED8936;
+
+    /* Bootstrap variable overrides */
+    --bs-dark: var(--background);
+    --bs-dark-rgb: 243, 242, 239;
+    --bs-body-bg: var(--background);
+    --bs-secondary: var(--card-surface);
+    --bs-light: var(--card-surface);
+    --bs-light-rgb: 255, 255, 255;
+    --bs-primary: var(--primary);
+    --bs-primary-rgb: 37, 99, 235; /* Updated RGB for new primary */
+    --bs-body-color: var(--text-primary);
+    --bs-body-color-rgb: 17, 24, 39; /* Updated RGB for new text-primary */
+    --bs-border-color: var(--border);
+    --bs-link-color: var(--primary);
+    --bs-link-hover-color: var(--primary-hover);
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-primary);
+  background-color: var(--background);
+  padding-top: 56px; /* Adjust based on your navbar height */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative; /* Needed for pseudo-element positioning */
+}
+
+.profile-page-bg {
+    background-color: var(--background); /* Keep the base background color */
+    position: relative; /* Ensure content is above pseudo-element */
+    z-index: 1; /* Ensure content is above pseudo-element */
+}
+
+.profile-page-bg::before {
+    content: '';
+    position: fixed; /* Fixed to viewport */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/images/user.svg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.3; /* Very low opacity */
+    z-index: -1; /* Send behind content */
+}
+
+/* General text colors */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+}
+
+p {
+    color: var(--text-secondary);
+}
+
+/* Card styling */
+.card {
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+  background-color: var(--card-surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+.card-title {
+    color: var(--text-primary);
+}
+
+.card-text {
+    color: var(--text-secondary);
+}
+
+/* Portfolio Card Specific Styling */
+.portfolio-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Soft shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--card-surface);
+}
+
+.portfolio-card:hover {
+    transform: translateY(-5px); /* Lift effect */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* More prominent shadow */
+}
+
+.portfolio-card-img-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    background-color: var(--border); /* Muted light background */
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+}
+
+.portfolio-card-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensure image covers the area */
+    object-position: center;
+}
+
+.portfolio-card-img-fallback {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--border);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.portfolio-card-img-fallback i {
+    font-size: 3rem; /* Larger icon */
+    margin-bottom: 0.5rem;
+}
+
+.portfolio-card .card-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.portfolio-card .card-title a {
+    color: var(--text-primary);
+}
+
+.portfolio-card .card-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.text-truncate-2-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Badges */
+.badge.bg-primary-subtle {
+    background-color: rgba(var(--bs-primary-rgb), 0.15) !important; /* Lighter primary background */
+    color: var(--primary) !important; /* Primary text color */
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #FFFFFF;
+    border-radius: 0.5rem; /* Slightly rounded */
+    font-weight: 600;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+}
+
+.btn-outline-primary {
+    border-color: var(--primary);
+    color: var(--primary);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: #FFFFFF;
+}
+
+.btn-outline-secondary {
+    border-color: var(--border);
+    color: var(--text-secondary);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--border);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+/* Navbar styling */
+.navbar {
+    background-color: var(--card-surface) !important;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.navbar .navbar-brand, .navbar .nav-link {
+    color: var(--text-primary) !important;
+    font-weight: 600;
+}
+
+.navbar .navbar-brand img {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.navbar .navbar-brand .align-middle {
+    vertical-align: middle;
+}
+
+.navbar .nav-link:hover {
+    color: var(--primary) !important;
+}
+
+/* Footer styling */
+.footer {
+    background-color: var(--card-surface) !important;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+}
+
+/* Form control styling */
+.form-control {
+    background-color: var(--card-surface);
+    border-color: var(--border);
+    color: var(--text-primary);
+    border-radius: 4px;
+    padding: 10px 12px;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25); /* Updated RGB for new primary */
+}
+
+label {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+/* Button styling (general, some overridden above) */
+.btn-success {
+    background-color: var(--success);
+    border-color: var(--success);
+    border-radius: 4px;
+    padding: 10px 24px;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+.btn-success:hover {
+    background-color: #36A36F; /* Slightly darker green */
+    border-color: #36A36F;
+}
+
+.btn-github {
+    background-color: #333; /* GitHub black */
+    border-color: #333;
+    color: #FFFFFF;
+    border-radius: 4px;
+    padding: 10px 24px;
+    font-weight: 600;
+}
+
+.btn-github:hover {
+    background-color: #555; /* Slightly lighter black */
+    border-color: #555;
+}
+
+.btn-info, .btn-secondary, .btn-danger {
+    border-radius: 4px;
+}
+
+/* Alert styling */
+.alert-success {
+    background-color: var(--success);
+    border-color: var(--success);
+    color: #FFFFFF;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    background-color: var(--error);
+    border-color: var(--error);
+    color: #FFFFFF !important;
+    border-radius: 4px;
+    text-align: center;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+
+.alert-warning {
+    background-color: var(--warning);
+    border-color: var(--warning);
+    color: #FFFFFF;
+    border-radius: 4px;
+}
+
+/* Custom styles for LinkedIn-like homepage */
+.hero-section {
+    background-color: var(--card-surface);
+    padding: 60px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    margin-bottom: 40px;
+}
+
+.hero-content h1 {
+    font-size: 3.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: var(--text-secondary);
+}
+
+.hero-illustration img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.auth-card {
+    background-color: var(--card-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.1;
+    z-index: 0;
+}
+
+.auth-card > *:not(.auth-card-bg) {
+    position: relative;
+    z-index: 1;
+}
+
+.auth-card h4 {
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.feature-box {
+    background-color: var(--card-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    text-align: center;
+    height: 100%;
+}
+
+.feature-box i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.feature-box h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.feature-box p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+/* Portfolio Detail Page Styling */
+.portfolio-detail-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.portfolio-detail-card .card-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.portfolio-detail-card .card-subtitle {
+    font-size: 1.1rem;
+}
+
+.portfolio-detail-card .card-text.lead {
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.portfolio-detail-card .card-img-top {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border);
+}
+
+.feedback-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack content vertically */
+}
+
+.feedback-card .card-body {
+    padding: 1rem;
+    flex-grow: 1; /* Allow card body to grow */
+    display: flex; /* Make card body a flex container */
+    flex-direction: column; /* Stack content vertically */
+}
+
+.feedback-card .card-subtitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.feedback-card .card-text {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+
+.feedback-list {
+    /* max-height: 500px; */
+    /* overflow-y: auto; */
+    /* padding-right: 15px; */
+}
+
+.feedback-screenshot-container-full-width {
+    width: 100%;
+    height: 150px; /* Adjust height as needed */
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-top: 1rem; /* Space from content above */
+}
+
+.feedback-screenshot-full-width {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* Profile DP Upload Area */
+.profile-dp-upload-area {
+    cursor: pointer;
+    width: 150px;
+    height: 150px;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.profile-dp-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+}
+
+.profile-dp-preview.fa-user-circle {
+    font-size: 7em;
+    line-height: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-dp-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-dp-upload-area:hover .profile-dp-overlay {
+    opacity: 1;
+}
+
+/* Profile Dashboard Styling */
+.sidebar {
+    background-color: var(--card-surface);
+    border-right: 1px solid var(--border);
+    min-height: calc(100vh - 56px);
+    padding-top: 20px;
+}
+
+.sidebar-icon {
+    color: var(--text-secondary);
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    transition: color 0.2s ease;
+}
+
+.sidebar-icon:hover,
+.sidebar-icon.active {
+    color: var(--primary);
+}
+
+.list-group-item {
+    background-color: var(--card-surface);
+    border-color: var(--border);
+    color: var(--text-primary);
+}
+
+.list-group-item:last-child {
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.list-group-item:first-child {
+    border-top-right-radius: 8px;
+    border-top-left-radius: 8px;
+}
+
+@media (max-width: 767.98px) {
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+    .hero-content p {
+        font-size: 1rem;
+    }
+    .feature-box {
+        margin-bottom: 20px;
+    }
+}
+
+.username-display {
+    color: #000000; /* Darker color for username */
+    font-weight: 600; /* Make it bold */
+}
+
+.feedback-page-container {
+    display: flex;
+    align-items: flex-start;
+}
+
+.portfolio-card-container {
+    position: sticky;
+    top: 80px;
+    width: 40%;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+    padding-right: 20px;
+}
+
+.feedbacks-container {
+    width: 60%;
+    padding-left: 20px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .feedback-page-container {
+        flex-direction: column;
+    }
+
+    .portfolio-card-container {
+        width: 100%;
+        position: static;
+        height: auto;
+        overflow-y: visible;
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .feedbacks-container {
+        width: 100%;
+        height: 50vh; /* Adjust this value as needed */
+        overflow-y: auto;
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .portfolio-card-container .card-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .portfolio-card-container .card-body img {
+        max-height: 150px;
+    }
+
+    .portfolio-card-container .card-body .text-muted {
+        font-size: 0.9rem;
+    }
+}
+
+.table-container {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
