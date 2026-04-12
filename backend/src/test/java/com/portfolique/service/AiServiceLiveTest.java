@@ -13,7 +13,12 @@ import org.springframework.boot.test.context.SpringBootTest;
  * Live test to verify Spring AI OpenAI Compatability via Gemini API. This test only runs if
  * GEMINI_API_KEY is present in the system environment.
  */
-@SpringBootTest(properties = "spring.ai.openai.api-key=${GEMINI_API_KEY}")
+@SpringBootTest(
+    properties = {
+      "spring.ai.openai.api-key=${GEMINI_API_KEY}",
+      "spring.ai.openai.base-url=https://generativelanguage.googleapis.com/v1beta/openai/",
+      "spring.ai.openai.chat.options.model=gemini-2.5-flash"
+    })
 @EnabledIfEnvironmentVariable(named = "GEMINI_API_KEY", matches = ".*")
 public class AiServiceLiveTest {
 
