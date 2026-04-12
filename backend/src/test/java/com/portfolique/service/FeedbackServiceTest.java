@@ -12,6 +12,7 @@ import com.portfolique.entity.Portfolio;
 import com.portfolique.entity.User;
 import com.portfolique.repository.FeedbackRepository;
 import com.portfolique.repository.PortfolioRepository;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,5 +97,18 @@ public class FeedbackServiceTest {
     feedbackService.deleteFeedback(1L, owner);
 
     verify(feedbackRepository).delete(feedback);
+  }
+
+  @Test
+  void testGetMyFeedbacks() {
+    Feedback feedback = Feedback.builder().id(1L).user(author).portfolio(portfolio).build();
+    Page<Feedback> page = new PageImpl<>(List.of(feedback));
+    when(feedbackRepository.findByUserOrderByCreatedAtDesc(eq(author), any())).thenReturn(page);
+
+    Page<FeedbackResponse> result = feedbackService.getMyFeedbacks(author, PageRequest.of(0, 10));
+
+    assertThat(result.getContent()).hasSize(1);
+    assertThat(result.getContent().get(0).getUserId()).isEqualTo(author.getId());
+    verify(feedbackRepository).findByUserOrderByCreatedAtDesc(eq(author), any());
   }
 }

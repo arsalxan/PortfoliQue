@@ -83,4 +83,17 @@ public class PortfolioServiceTest {
         ResponseStatusException.class,
         () -> portfolioService.updatePortfolio(1L, req, null, otherUser));
   }
+
+  @Test
+  void testGetMyPortfolios() {
+    Page<Portfolio> page = new PageImpl<>(List.of(testPortfolio));
+    when(portfolioRepository.findByUserOrderByCreatedAtDesc(eq(testUser), any())).thenReturn(page);
+
+    Page<PortfolioResponse> result =
+        portfolioService.getMyPortfolios(testUser, PageRequest.of(0, 10));
+
+    assertThat(result.getContent()).hasSize(1);
+    assertThat(result.getContent().get(0).getUserId()).isEqualTo(testUser.getId());
+    verify(portfolioRepository).findByUserOrderByCreatedAtDesc(eq(testUser), any());
+  }
 }

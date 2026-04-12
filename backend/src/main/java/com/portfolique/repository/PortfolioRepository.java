@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
   Page<Portfolio> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 
+  long countByUser(User user);
+
   Page<Portfolio> findByUser_UsernameContainingIgnoreCase(String username, Pageable pageable);
 
   @Query(

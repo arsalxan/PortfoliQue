@@ -16,6 +16,8 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
 
   Page<Feedback> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
 
+  long countByUser(User user);
+
   Long countByPortfolio(Portfolio portfolio);
 
   @Query(

@@ -36,6 +36,13 @@ public class FeedbackService {
         .map(this::mapToResponse);
   }
 
+  @Transactional(readOnly = true)
+  public Page<FeedbackResponse> getMyFeedbacks(User user, Pageable pageable) {
+    return feedbackRepository
+        .findByUserOrderByCreatedAtDesc(user, pageable)
+        .map(this::mapToResponse);
+  }
+
   @Transactional
   public FeedbackResponse createFeedback(Long portfolioId, FeedbackRequest req, User currentUser) {
     Portfolio portfolio =

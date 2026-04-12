@@ -157,4 +157,22 @@ public class PortfolioControllerTest {
 
     verify(portfolioService).deletePortfolio(eq(1L), any(User.class));
   }
+
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testGetMyPortfolios_Success() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+    PortfolioResponse res =
+        PortfolioResponse.builder().id(1L).url("http://test.com").userId(1L).build();
+    when(portfolioService.getMyPortfolios(any(User.class), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(res)));
+
+    mockMvc
+        .perform(get("/api/v1/portfolios/my"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].url").value("http://test.com"))
+        .andExpect(jsonPath("$.content[0].userId").value(1L));
+  }
 }

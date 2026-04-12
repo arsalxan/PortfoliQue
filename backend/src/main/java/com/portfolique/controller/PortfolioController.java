@@ -45,6 +45,14 @@ public class PortfolioController {
     return ResponseEntity.ok(portfolioService.getAllPortfolios(pageable));
   }
 
+  @GetMapping("/my")
+  public ResponseEntity<Page<PortfolioResponse>> getMyPortfolios(
+      @AuthenticationPrincipal UserDetails userDetails,
+      @PageableDefault(size = 9) Pageable pageable) {
+    User currentUser = getCurrentUser(userDetails);
+    return ResponseEntity.ok(portfolioService.getMyPortfolios(currentUser, pageable));
+  }
+
   @PostMapping("")
   public ResponseEntity<PortfolioResponse> createPortfolio(
       @Valid @RequestPart("portfolio") PortfolioRequest req,

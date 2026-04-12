@@ -31,6 +31,13 @@ public class PortfolioService {
     return portfolioRepository.findAllSortedByFewestFeedbacks(pageable).map(this::mapToResponse);
   }
 
+  @Transactional(readOnly = true)
+  public Page<PortfolioResponse> getMyPortfolios(User user, Pageable pageable) {
+    return portfolioRepository
+        .findByUserOrderByCreatedAtDesc(user, pageable)
+        .map(this::mapToResponse);
+  }
+
   @Transactional
   public PortfolioResponse createPortfolio(
       PortfolioRequest req, MultipartFile screenshot, User currentUser) {

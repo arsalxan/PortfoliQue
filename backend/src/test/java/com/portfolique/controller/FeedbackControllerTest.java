@@ -181,4 +181,21 @@ public class FeedbackControllerTest {
 
     mockMvc.perform(delete("/api/v1/feedbacks/1").with(csrf())).andExpect(status().isForbidden());
   }
+
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testGetMyFeedbacks_Success() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+    FeedbackResponse res = FeedbackResponse.builder().id(1L).design("Great").userId(1L).build();
+    when(feedbackService.getMyFeedbacks(any(User.class), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(List.of(res)));
+
+    mockMvc
+        .perform(get("/api/v1/feedbacks/my"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].design").value("Great"))
+        .andExpect(jsonPath("$.content[0].userId").value(1L));
+  }
 }

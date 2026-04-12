@@ -33,6 +33,14 @@ public class FeedbackController {
     return ResponseEntity.ok(feedbackService.getFeedbacksForPortfolio(id, pageable));
   }
 
+  @GetMapping("/feedbacks/my")
+  public ResponseEntity<Page<FeedbackResponse>> getMyFeedbacks(
+      @AuthenticationPrincipal UserDetails userDetails,
+      @PageableDefault(size = 10) Pageable pageable) {
+    User currentUser = getCurrentUser(userDetails);
+    return ResponseEntity.ok(feedbackService.getMyFeedbacks(currentUser, pageable));
+  }
+
   @PostMapping("/portfolios/{id}/feedbacks")
   public ResponseEntity<FeedbackResponse> createFeedback(
       @PathVariable Long id,
