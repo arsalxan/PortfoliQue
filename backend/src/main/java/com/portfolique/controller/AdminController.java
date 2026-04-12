@@ -5,15 +5,19 @@ import com.portfolique.dto.response.FeedbackResponse;
 import com.portfolique.dto.response.PortfolioResponse;
 import com.portfolique.dto.response.UserResponse;
 import com.portfolique.entity.User;
+import com.portfolique.repository.UserRepository;
 import com.portfolique.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
 
     private final AdminService adminService;
+    private final UserRepository userRepository;
 
     @GetMapping("/dashboard")
     public ResponseEntity<AdminDashboardResponse> getDashboardStats() {
@@ -38,8 +43,10 @@ public class AdminController {
     @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long id,
-            @AuthenticationPrincipal User currentUser) {
-        adminService.deleteUser(id, currentUser.getId());
+            @AuthenticationPrincipal UserDetails currentUser) {
+        User user = userRepository.findByUsername(currentUser.getUsername())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Admin not found"));
+        adminService.deleteUser(id, user.getId());
         return ResponseEntity.noContent().build();
     }
 

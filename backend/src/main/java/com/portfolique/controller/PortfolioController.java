@@ -39,12 +39,12 @@ public class PortfolioController {
         this.aiService = aiService;
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<Page<PortfolioResponse>> getAllPortfolios(@PageableDefault(size = 9) Pageable pageable) {
         return ResponseEntity.ok(portfolioService.getAllPortfolios(pageable));
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<PortfolioResponse> createPortfolio(
             @Valid @RequestPart("portfolio") PortfolioRequest req,
             @RequestPart(value = "screenshot", required = false) MultipartFile screenshot,

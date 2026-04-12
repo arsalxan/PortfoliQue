@@ -26,7 +26,7 @@ public class NotificationController {
     private final NotificationService notificationService;
     private final UserRepository userRepository;
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<Page<NotificationResponse>> getNotifications(
             @AuthenticationPrincipal UserDetails userDetails,
             @PageableDefault(size = 15) Pageable pageable) {
