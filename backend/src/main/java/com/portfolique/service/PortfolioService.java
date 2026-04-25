@@ -44,7 +44,9 @@ public class PortfolioService {
         .map(this::mapToResponse);
   }
 
-  @CacheEvict(value = {"portfolios", "userPortfolios", "userProfiles"}, allEntries = true)
+  @CacheEvict(
+      value = {"portfolios", "userPortfolios", "userProfiles"},
+      allEntries = true)
   @Transactional
   public PortfolioResponse createPortfolio(
       PortfolioRequest req, MultipartFile screenshot, User currentUser) {
@@ -70,7 +72,9 @@ public class PortfolioService {
     return mapToResponse(saved);
   }
 
-  @CacheEvict(value = {"portfolios", "userPortfolios", "portfolioDetails"}, allEntries = true)
+  @CacheEvict(
+      value = {"portfolios", "userPortfolios", "portfolioDetails"},
+      allEntries = true)
   @Transactional
   public PortfolioResponse updatePortfolio(
       Long id, PortfolioRequest req, MultipartFile screenshot, User currentUser) {
@@ -111,7 +115,9 @@ public class PortfolioService {
     return mapToResponse(saved);
   }
 
-  @CacheEvict(value = {"portfolios", "userPortfolios", "portfolioDetails", "userProfiles"}, allEntries = true)
+  @CacheEvict(
+      value = {"portfolios", "userPortfolios", "portfolioDetails", "userProfiles"},
+      allEntries = true)
   @Transactional
   public void deletePortfolio(Long id, User currentUser) {
     Portfolio portfolio =

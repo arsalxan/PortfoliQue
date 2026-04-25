@@ -35,14 +35,16 @@ public class AiService {
             + truncateLinks(analysis.getLinks())
             + "\n\n"
             + "Provide a comprehensive review including overall impression, page title analysis, "
-            + "link analysis, image analysis, and specific suggestions for improvement. Use markdown formatting.";
+            + "link analysis, image analysis, and specific suggestions for improvement. Use markdown formatting. "
+            + "Provide ONLY the review content. Do NOT include any introductory or concluding remarks like 'Here is the review' or 'I hope this helps'.";
 
     return callGemini(prompt);
   }
 
   public String summarizeFeedback(Feedback feedback) {
     String prompt =
-        "Summarize the following feedback for a web portfolio into exactly 3 short bullet points:\n\n"
+        "Summarize the following feedback for a web portfolio into exactly 3 short bullet points. "
+            + "Provide ONLY the bullet points. DO NOT include any introductory or concluding text like 'Here is the summary' or 'The summary is as follows':\n\n"
             + "Design: "
             + feedback.getDesign()
             + "\n"

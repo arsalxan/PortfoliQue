@@ -47,7 +47,9 @@ public class FeedbackService {
         .map(this::mapToResponse);
   }
 
-  @CacheEvict(value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles"}, allEntries = true)
+  @CacheEvict(
+      value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles"},
+      allEntries = true)
   @Transactional
   public FeedbackResponse createFeedback(Long portfolioId, FeedbackRequest req, User currentUser) {
     Portfolio portfolio =
@@ -99,7 +101,9 @@ public class FeedbackService {
     return aiService.summarizeFeedback(feedback);
   }
 
-  @CacheEvict(value = {"feedbacks", "userFeedbacks"}, allEntries = true)
+  @CacheEvict(
+      value = {"feedbacks", "userFeedbacks"},
+      allEntries = true)
   @Transactional
   public FeedbackResponse updateFeedback(Long feedbackId, FeedbackRequest req, User currentUser) {
     Feedback feedback =
@@ -125,7 +129,9 @@ public class FeedbackService {
     return mapToResponse(saved);
   }
 
-  @CacheEvict(value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles"}, allEntries = true)
+  @CacheEvict(
+      value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles"},
+      allEntries = true)
   @Transactional
   public void deleteFeedback(Long feedbackId, User currentUser) {
     Feedback feedback =
