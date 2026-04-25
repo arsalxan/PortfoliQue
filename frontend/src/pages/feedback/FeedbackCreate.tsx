@@ -6,6 +6,7 @@ import type { Portfolio } from '../../types/portfolio.ts';
 import type { FeedbackRequest } from '../../types/feedback.ts';
 import PortfolioCard from '../../components/portfolio/PortfolioCard.tsx';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext.tsx';
 
 export default function FeedbackCreate() {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,7 @@ export default function FeedbackCreate() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
 
   const [formData, setFormData] = useState<FeedbackRequest>({
     design: '',
@@ -33,6 +35,13 @@ export default function FeedbackCreate() {
         .finally(() => setLoading(false));
     }
   }, [id]);
+
+  useEffect(() => {
+    if (portfolio && currentUser && portfolio.userId === currentUser.id) {
+      toast.error("You cannot review your own portfolio.");
+      navigate(`/portfolios/${id}/feedbacks`);
+    }
+  }, [portfolio, currentUser, navigate, id]);
 
   const handleInputChange = (field: keyof FeedbackRequest, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
