@@ -16,7 +16,7 @@ public class PortfolioRequest {
   private String description;
 
   @Pattern(
-      regexp = "^(https?://).+",
+      regexp = "^$|^(https?://).+",
       message = "Git Repository URL must start with http:// or https://")
   private String gitRepo;
 }

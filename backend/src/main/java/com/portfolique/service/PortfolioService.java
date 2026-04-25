@@ -6,6 +6,7 @@ import com.portfolique.entity.Portfolio;
 import com.portfolique.entity.User;
 import com.portfolique.repository.PortfolioRepository;
 import java.io.IOException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@Slf4j
 public class PortfolioService {
 
   private final PortfolioRepository portfolioRepository;
@@ -122,7 +124,11 @@ public class PortfolioService {
       if (publicId != null) {
         try {
           cloudinaryService.deleteImage(publicId);
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+          log.warn(
+              "Failed to delete screenshot from Cloudinary for portfolio {}: {}",
+              id,
+              e.getMessage());
         }
       }
     }

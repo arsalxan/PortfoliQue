@@ -1,3 +1,4 @@
+
 export interface Portfolio {
   id: number;
   url: string;
@@ -13,8 +14,10 @@ export interface Portfolio {
 
 export interface PortfolioRequest {
   url: string;
+  title: string;
   description?: string;
   gitRepo?: string;
+  category?: string;
 }
 
 export interface PortfolioPage {

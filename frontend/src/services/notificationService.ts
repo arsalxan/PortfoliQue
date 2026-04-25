@@ -1,20 +1,17 @@
-import api from './api.ts';
-import type { NotificationPage } from '../types/notification.ts';
+import api from './api';
+import type { NotificationPage } from '../types/notification';
 
 export const notificationService = {
-  getNotifications: async (page = 0, size = 20): Promise<NotificationPage> => {
-    const response = await api.get<NotificationPage>('/notifications', { params: { page, size } });
+  getNotifications: async (page = 0, size = 15): Promise<NotificationPage> => {
+    const response = await api.get<NotificationPage>('/notifications', {
+      params: { page, size }
+    });
     return response.data;
   },
 
-  getUnreadCount: async (): Promise<{ count: number }> => {
+  getUnreadCount: async (): Promise<number> => {
     const response = await api.get<{ count: number }>('/notifications/unread-count');
-    return response.data;
-  },
-
-  getUnreadPreview: async (): Promise<Notification[]> => {
-    const response = await api.get<Notification[]>('/notifications/unread-preview');
-    return response.data;
+    return response.data.count;
   },
 
   markAsRead: async (id: number): Promise<void> => {
@@ -23,5 +20,5 @@ export const notificationService = {
 
   markAllAsRead: async (): Promise<void> => {
     await api.put('/notifications/mark-all-read');
-  },
+  }
 };

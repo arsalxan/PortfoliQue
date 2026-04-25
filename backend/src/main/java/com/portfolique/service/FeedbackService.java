@@ -127,13 +127,11 @@ public class FeedbackService {
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Feedback not found"));
 
-    Portfolio portfolio = feedback.getPortfolio();
-    boolean isAuthor = feedback.getUser().getId().equals(currentUser.getId());
-    boolean isPortfolioOwner = portfolio.getUser().getId().equals(currentUser.getId());
-
-    if (!isAuthor && !isPortfolioOwner) {
+    // Only the original author may delete their own feedback
+    if (!feedback.getUser().getId().equals(currentUser.getId())) {
       throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "Not authorized to delete this feedback");
+          HttpStatus.FORBIDDEN,
+          "You do not have permission to delete this feedback. Only the author can delete their own feedback.");
     }
 
     feedbackRepository.delete(feedback);

@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { portfolioService } from '../../services/portfolioService.ts';
+import { useAuth } from '../../context/AuthContext.tsx';
+import toast from 'react-hot-toast';
 
 export default function PortfolioEdit() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [url, setUrl] = useState('');
   const [description, setDescription] = useState('');
   const [gitRepo, setGitRepo] = useState('');
@@ -26,6 +29,14 @@ export default function PortfolioEdit() {
     setLoading(true);
     try {
       const data = await portfolioService.getPortfolioById(portfolioId);
+
+      // Ownership guard: redirect anyone who isn't the portfolio owner
+      if (data.userId !== user?.id) {
+        toast.error('You are not authorized to edit this portfolio.');
+        navigate('/portfolios', { replace: true });
+        return;
+      }
+
       setUrl(data.url);
       setDescription(data.description || '');
       setGitRepo(data.gitRepo || '');
@@ -36,6 +47,7 @@ export default function PortfolioEdit() {
       setLoading(false);
     }
   };
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -59,11 +71,14 @@ export default function PortfolioEdit() {
 
     try {
       const formData = new FormData();
-      formData.append('url', url);
-      formData.append('description', description);
-      formData.append('gitRepo', gitRepo);
+      
+      // Bundle data into a JSON blob (matches backend @RequestPart("portfolio"))
+      const portfolioData = { url, description, gitRepo };
+      formData.append('portfolio', new Blob([JSON.stringify(portfolioData)], { type: 'application/json' }));
+      
       if (newScreenshot) {
-        formData.append('screenshotFile', newScreenshot);
+        // Backend expects "screenshot" field name
+        formData.append('screenshot', newScreenshot);
       }
 
       await portfolioService.updatePortfolio(parseInt(id), formData);

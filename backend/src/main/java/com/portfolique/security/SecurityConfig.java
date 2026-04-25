@@ -43,7 +43,7 @@ public class SecurityConfig {
                         org.springframework.http.HttpMethod.GET, "/api/v1/portfolios/search")
                     .permitAll()
                     .requestMatchers(
-                        org.springframework.http.HttpMethod.GET, "/api/v1/portfolios/*/feedbacks")
+                        org.springframework.http.HttpMethod.GET, "/api/v1/portfolios/**")
                     .permitAll()
                     .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/feedbacks/*")
                     .permitAll()

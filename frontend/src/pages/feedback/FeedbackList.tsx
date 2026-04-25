@@ -60,97 +60,165 @@ export default function FeedbackList() {
   }
 
   return (
-    <div className="container-fluid py-4">
-      <div className="feedback-page-container">
-        {/* Left Side: Portfolio Info (Sticky) */}
-        <div className="portfolio-card-container">
-          <div className="mb-3">
-            <Link to="/portfolios" className="btn btn-sm btn-outline-secondary mb-3">
-              <i className="fas fa-arrow-left me-2"></i> Back to Portfolios
-            </Link>
-            <h2 className="h4 fw-bold mb-3">Portfolio Details</h2>
-          </div>
-          {portfolio && <PortfolioCard portfolio={portfolio} />}
-          <div className="mt-4">
-            <Link to={`/portfolios/${id}/feedbacks/new`} className="btn btn-primary btn-lg w-100 shadow-sm">
+    <div className="container-fluid px-4 py-4 fade-in" style={{ maxWidth: '1400px', margin: '0 auto' }}>
+
+      {/* Back button */}
+      <Link to="/portfolios" className="btn btn-sm btn-outline-secondary mb-4">
+        <i className="fas fa-arrow-left me-2"></i> Back to Portfolios
+      </Link>
+
+      <div className="row g-4">
+
+        {/* ── LEFT PANEL: Portfolio Info (sticky) ── */}
+        <div className="col-lg-4">
+          <div style={{ position: 'sticky', top: '72px' }}>
+            <div className="card border-0 shadow-sm mb-3">
+              <div className="card-body p-3">
+                <h5 className="fw-bold mb-3">
+                  <i className="fas fa-layer-group me-2 text-primary"></i>Portfolio Details
+                </h5>
+                {portfolio && <PortfolioCard portfolio={portfolio} />}
+              </div>
+            </div>
+
+            <Link
+              to={`/portfolios/${id}/feedbacks/new`}
+              className="btn btn-primary btn-lg w-100 shadow-sm"
+            >
               <i className="fas fa-pen me-2"></i> Give Your Feedback
             </Link>
           </div>
         </div>
 
-        {/* Right Side: Feedbacks List */}
-        <div className="feedbacks-container">
-          <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-            <h2 className="h4 fw-bold mb-0">Community Feedbacks</h2>
-            <span className="badge bg-light text-primary border">{portfolio?.feedbackCount || 0} Total</span>
+        {/* ── RIGHT PANEL: Feedbacks ── */}
+        <div className="col-lg-8">
+          {/* Section header */}
+          <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div>
+              <h2 className="h4 fw-bold mb-0">Community Feedbacks</h2>
+              <p className="text-muted small mb-0">What the community thinks about this portfolio</p>
+            </div>
+            <span className="badge rounded-pill border fw-normal px-3 py-2"
+              style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: 'var(--primary)', fontSize: '0.85rem' }}>
+              {portfolio?.feedbackCount || 0} reviews
+            </span>
           </div>
 
           {error && <div className="alert alert-danger">{error}</div>}
 
           {feedbacks.length === 0 ? (
-            <div className="text-center py-5 bg-white rounded shadow-sm border">
-              <i className="fas fa-comments fa-3x mb-3 text-muted"></i>
-              <h5 className="text-secondary">No feedback has been submitted yet.</h5>
-              <p className="text-muted">Be the first to share your thoughts!</p>
+            <div className="card border-0 shadow-sm text-center py-5">
+              <div className="card-body">
+                <i className="fas fa-comments fa-3x mb-3" style={{ color: 'var(--border)' }}></i>
+                <h5 className="fw-bold mb-2">No feedback yet</h5>
+                <p className="text-muted mb-0">Be the first to share your thoughts!</p>
+              </div>
             </div>
           ) : (
             <>
-              {feedbacks.map((feedback) => (
-                <div key={feedback.id} className="card feedback-card mb-4 shadow-sm border-0">
-                  <div className="card-body">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <div className="d-flex align-items-center">
-                        <div className="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style={{ width: '40px', height: '40px' }}>
-                          {feedback.username.charAt(0).toUpperCase()}
+              <div className="d-flex flex-column gap-3">
+                {feedbacks.map((feedback) => (
+                  <div key={feedback.id} className="card border-0 shadow-sm" style={{ borderRadius: '12px' }}>
+                    <div className="card-body p-4">
+
+                      {/* Reviewer header */}
+                      <div className="d-flex justify-content-between align-items-start mb-3">
+                        <div className="d-flex align-items-center gap-3">
+                          {/* Avatar initial — subtle, not heavy blue */}
+                          <div
+                            className="d-flex align-items-center justify-content-center fw-bold rounded-circle flex-shrink-0"
+                            style={{
+                              width: '42px', height: '42px', fontSize: '1rem',
+                              backgroundColor: 'rgba(37,99,235,0.1)',
+                              color: 'var(--primary)'
+                            }}
+                          >
+                            {feedback.username.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <div className="fw-bold" style={{ fontSize: '0.95rem' }}>{feedback.fullName}</div>
+                            <div className="text-muted" style={{ fontSize: '0.8rem' }}>
+                              @{feedback.username} · {new Date(feedback.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <h6 className="mb-0 fw-bold">{feedback.fullName}</h6>
-                          <small className="text-muted">@{feedback.username} • {new Date(feedback.createdAt).toLocaleDateString()}</small>
-                        </div>
+                        <Link
+                          to={`/portfolios/${id}/feedbacks/${feedback.id}`}
+                          className="btn btn-sm btn-outline-primary"
+                          style={{ borderRadius: '8px' }}
+                        >
+                          Full Review
+                        </Link>
                       </div>
-                      <Link to={`/portfolios/${id}/feedbacks/${feedback.id}`} className="btn btn-sm btn-outline-primary">
-                        View Details
-                      </Link>
-                    </div>
 
-                    <div className="feedback-fields-preview">
-                      {feedback.design && (
-                        <div className="mb-2">
-                          <span className="badge bg-light text-dark me-2 small uppercase">Design</span>
-                          <p className="mb-0 small text-truncate-2-lines">{feedback.design}</p>
-                        </div>
-                      )}
-                      {feedback.responsiveness && (
-                        <div className="mb-2">
-                          <span className="badge bg-light text-dark me-2 small uppercase">Responsiveness</span>
-                          <p className="mb-0 small text-truncate-2-lines">{feedback.responsiveness}</p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mt-3 pt-3 border-top">
-                      <button 
-                        className="btn btn-sm btn-outline-info"
-                        onClick={() => handleSummarize(feedback.id)}
-                        disabled={summaries[feedback.id]?.loading}
-                      >
-                        {summaries[feedback.id]?.loading ? (
-                          <><span className="spinner-border spinner-border-sm me-1"></span> Summarizing...</>
-                        ) : (
-                          <><i className="fas fa-robot me-1"></i> AI Summarize</>
+                      {/* Feedback preview fields */}
+                      <div className="d-flex flex-column gap-2">
+                        {feedback.design && (
+                          <div className="p-3 rounded-3" style={{ backgroundColor: 'var(--background)' }}>
+                            <div className="d-flex align-items-center mb-1 gap-2">
+                              <span className="badge rounded-pill fw-semibold"
+                                style={{ backgroundColor: 'rgba(37,99,235,0.1)', color: 'var(--primary)', fontSize: '0.72rem' }}>
+                                Design
+                              </span>
+                            </div>
+                            <p className="mb-0 small text-truncate-2-lines" style={{ color: 'var(--text-primary)' }}>
+                              {feedback.design}
+                            </p>
+                          </div>
                         )}
-                      </button>
+                        {feedback.responsiveness && (
+                          <div className="p-3 rounded-3" style={{ backgroundColor: 'var(--background)' }}>
+                            <div className="d-flex align-items-center mb-1 gap-2">
+                              <span className="badge rounded-pill fw-semibold"
+                                style={{ backgroundColor: 'rgba(72,187,120,0.12)', color: '#2f855a', fontSize: '0.72rem' }}>
+                                Responsiveness
+                              </span>
+                            </div>
+                            <p className="mb-0 small text-truncate-2-lines" style={{ color: 'var(--text-primary)' }}>
+                              {feedback.responsiveness}
+                            </p>
+                          </div>
+                        )}
+                      </div>
 
-                      {summaries[feedback.id]?.text && (
-                        <div className="mt-3 p-3 bg-light rounded border border-info animate__animated animate__fadeIn">
-                          <h6 className="small fw-bold text-info"><i className="fas fa-magic me-1"></i> AI Summary:</h6>
-                          <p className="mb-0 small font-italic">"{summaries[feedback.id].text}"</p>
-                        </div>
-                      )}
+                      {/* AI Summarize */}
+                      <div className="mt-3 pt-3 border-top">
+                        <button
+                          className="btn btn-sm fw-semibold"
+                          style={{
+                            backgroundColor: 'rgba(37,99,235,0.08)',
+                            color: 'var(--primary)',
+                            border: '1px solid rgba(37,99,235,0.2)',
+                            borderRadius: '8px'
+                          }}
+                          onClick={() => handleSummarize(feedback.id)}
+                          disabled={summaries[feedback.id]?.loading}
+                        >
+                          {summaries[feedback.id]?.loading ? (
+                            <><span className="spinner-border spinner-border-sm me-1"></span> Summarizing...</>
+                          ) : (
+                            <><i className="fas fa-robot me-1"></i> AI Summarize</>
+                          )}
+                        </button>
+
+                        {summaries[feedback.id]?.text && (
+                          <div className="mt-3 p-3 rounded-3 fade-in"
+                            style={{ backgroundColor: 'rgba(37,99,235,0.05)', border: '1px solid rgba(37,99,235,0.15)' }}>
+                            <div className="d-flex align-items-center gap-2 mb-2">
+                              <i className="fas fa-magic" style={{ color: 'var(--primary)', fontSize: '0.8rem' }}></i>
+                              <span className="small fw-bold" style={{ color: 'var(--primary)' }}>AI Summary</span>
+                            </div>
+                            <p className="mb-0 small fst-italic" style={{ color: 'var(--text-primary)' }}>
+                              "{summaries[feedback.id].text}"
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
 
               {totalPages > 1 && (
                 <nav className="mt-5 d-flex justify-content-center">
@@ -166,6 +234,7 @@ export default function FeedbackList() {
             </>
           )}
         </div>
+
       </div>
     </div>
   );

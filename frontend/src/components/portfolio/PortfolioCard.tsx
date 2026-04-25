@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import type { Portfolio } from '../../types/portfolio.ts';
-import { useAuth } from '../../context/AuthContext.tsx';
+import type { Portfolio } from '../../types/portfolio';
+import { useAuth } from '../../context/AuthContext';
 
 interface PortfolioCardProps {
   portfolio: Portfolio;
@@ -11,98 +11,83 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
   const { user } = useAuth();
   const isOwner = user?.id === portfolio.userId;
 
-
+  // Use the default image path from the public folder
+  const displayScreenshot = portfolio.screenshot || '/images/defaultscreenshot.svg';
 
   return (
     <div className="col">
-      <div className="card h-100 portfolio-card">
+      <div className="portfolio-card card h-100 shadow-sm">
         <div className="portfolio-card-img-container">
-          {portfolio.screenshot ? (
+          <a href={portfolio.url} target="_blank" rel="noopener noreferrer" className="d-block">
             <img 
-              src={portfolio.screenshot} 
+              src={displayScreenshot} 
               className="portfolio-card-img" 
               alt={`${portfolio.fullName}'s Portfolio`} 
               onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = '/images/defaultscreenshot.svg';
+                (e.target as HTMLImageElement).src = '/images/defaultscreenshot.svg';
               }}
             />
-          ) : (
-            <div className="portfolio-card-img-fallback">
-              <i className="fas fa-image"></i>
-              <span>No Screenshot</span>
-            </div>
-          )}
+          </a>
         </div>
-        <div className="card-body">
+        <div className="card-body d-flex flex-column">
           <div className="d-flex justify-content-between align-items-start mb-2">
-            <h5 className="card-title mb-0">
-              <Link to={portfolio.url} target="_blank" className="text-decoration-none">
+            <h5 className="card-title fw-bold mb-0 text-truncate me-2">
+              <a href={portfolio.url} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-primary-emphasis">
                 {portfolio.fullName}'s Portfolio
-              </Link>
+              </a>
             </h5>
-            <span className="badge bg-primary-subtle rounded-pill">
-              {portfolio.feedbackCount} Feedbacks
-            </span>
+            <Link to={`/portfolios/${portfolio.id}/feedbacks`} className="badge bg-primary-subtle text-primary-emphasis rounded-pill px-3 py-2 text-decoration-none">
+              <i className="fas fa-comments me-1"></i> {portfolio.feedbackCount || 0}
+            </Link>
           </div>
-          <p className="card-subtitle mb-2 text-muted small">
-            <i className="fas fa-user me-1"></i> {portfolio.username}
-          </p>
-          <p className="card-text text-truncate-2-lines flex-grow-1">
-            {portfolio.description || 'No description provided.'}
+          
+          <p className="card-subtitle text-secondary mb-2">
+            by <small className="text-muted"><span className="username-display">{portfolio.username}</span></small>
           </p>
           
-          <div className="mt-3 pt-3 border-top d-flex flex-wrap gap-2">
-            <Link 
-              to={`/portfolios/${portfolio.id}/feedbacks`} 
-              className="btn btn-sm btn-outline-primary"
-            >
-              <i className="fas fa-comments me-1"></i> Feedbacks
-            </Link>
-            
+          <p className="card-text text-truncate-2-lines flex-grow-1">
+            {portfolio.description || <span className="text-muted">No description provided.</span>}
+          </p>
+
+          <div className="mt-auto pt-3 d-flex flex-wrap justify-content-end gap-2">
             {portfolio.gitRepo && (
               <a 
                 href={portfolio.gitRepo} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="btn btn-sm btn-outline-secondary"
+                className="btn btn-outline-secondary btn-sm d-flex align-items-center"
               >
-                <i className="fab fa-github me-1"></i> Repo
+                <i className="fab fa-github me-1"></i> Git Repo
               </a>
             )}
-
+            
             {isOwner ? (
-              <>
-                <Link 
-                  to={`/portfolios/${portfolio.id}/ai-review`} 
-                  className="btn btn-sm btn-primary"
-                >
-                  <i className="fas fa-robot me-1"></i> AI Review
-                </Link>
+              <Link to={`/portfolios/${portfolio.id}/ai-review`} className="btn btn-info btn-sm d-flex align-items-center">
+                <i className="fas fa-robot me-1"></i> AI Review
+              </Link>
+            ) : (
+              <Link to={`/portfolios/${portfolio.id}/feedbacks/new`} className="btn btn-primary btn-sm d-flex align-items-center">
+                <i className="fas fa-comment-dots me-1"></i> Give Feedback
+              </Link>
+            )}
+
+            {isOwner && (
+              <div className="d-flex gap-1 ms-auto mt-2 w-100 justify-content-end">
                 <Link 
                   to={`/portfolios/${portfolio.id}/edit`} 
-                  className="btn btn-sm btn-outline-warning"
+                  className="btn btn-sm btn-outline-warning rounded-pill"
                   title="Edit Portfolio"
                 >
                   <i className="fas fa-edit"></i>
                 </Link>
-                {onDelete && (
-                  <button 
-                    onClick={() => onDelete(portfolio.id)}
-                    className="btn btn-sm btn-outline-danger"
-                    title="Delete Portfolio"
-                  >
-                    <i className="fas fa-trash"></i>
-                  </button>
-                )}
-              </>
-            ) : (
-              <Link 
-                to={`/portfolios/${portfolio.id}/feedbacks/new`} 
-                className="btn btn-sm btn-primary"
-              >
-                <i className="fas fa-pen me-1"></i> Give Feedback
-              </Link>
+                <button 
+                  onClick={() => onDelete?.(portfolio.id)}
+                  className="btn btn-sm btn-outline-danger rounded-pill"
+                  title="Delete Portfolio"
+                >
+                  <i className="fas fa-trash"></i>
+                </button>
+              </div>
             )}
           </div>
         </div>

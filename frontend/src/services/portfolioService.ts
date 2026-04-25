@@ -43,9 +43,9 @@ export const portfolioService = {
     await api.delete(`/portfolios/${id}`);
   },
 
-  searchPortfolios: async (query: string): Promise<Portfolio[]> => {
-    const response = await api.get<Portfolio[]>('/portfolios/search', {
-      params: { q: query }
+  searchPortfolios: async (query: string, page = 0, size = 9): Promise<PortfolioPage> => {
+    const response = await api.get<PortfolioPage>('/portfolios/search', {
+      params: { q: query, page, size }
     });
     return response.data;
   },

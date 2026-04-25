@@ -52,9 +52,8 @@ public class EmailService {
               htmlContent);
 
       HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-      // In a real deployed app, execute this:
-      // restTemplate.postForEntity("https://api.brevo.com/v3/smtp/email", entity, String.class);
-      log.info("Email payload simulated: {}", body);
+      restTemplate.postForEntity("https://api.brevo.com/v3/smtp/email", entity, String.class);
+      log.info("Verification email sent successfully to {}", toEmail);
     } catch (Exception e) {
       log.error("Failed to send email to " + toEmail, e);
     }

@@ -38,11 +38,14 @@ export default function PortfolioCreate() {
 
     try {
       const formData = new FormData();
-      formData.append('url', url);
-      formData.append('description', description);
-      formData.append('gitRepo', gitRepo);
+      
+      // Bundle data into a JSON blob (matches backend @RequestPart("portfolio"))
+      const portfolioData = { url, description, gitRepo };
+      formData.append('portfolio', new Blob([JSON.stringify(portfolioData)], { type: 'application/json' }));
+      
       if (screenshot) {
-        formData.append('screenshotFile', screenshot); // Match backend field name if known, or usually 'screenshotFile' or 'screenshot'
+        // Backend expects "screenshot" field name
+        formData.append('screenshot', screenshot); 
       }
 
       await portfolioService.createPortfolio(formData);

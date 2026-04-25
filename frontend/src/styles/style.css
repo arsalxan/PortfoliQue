@@ -13,19 +13,21 @@
     --warning:           #ED8936;
 
     /* Bootstrap variable overrides */
-    --bs-dark: var(--background);
-    --bs-dark-rgb: 243, 242, 239;
+    --bs-dark: var(--text-primary);
+    --bs-dark-rgb: 17, 24, 39;
     --bs-body-bg: var(--background);
     --bs-secondary: var(--card-surface);
     --bs-light: var(--card-surface);
     --bs-light-rgb: 255, 255, 255;
     --bs-primary: var(--primary);
-    --bs-primary-rgb: 37, 99, 235; /* Updated RGB for new primary */
+    --bs-primary-rgb: 37, 99, 235;
     --bs-body-color: var(--text-primary);
-    --bs-body-color-rgb: 17, 24, 39; /* Updated RGB for new text-primary */
+    --bs-body-color-rgb: 17, 24, 39;
     --bs-border-color: var(--border);
     --bs-link-color: var(--primary);
     --bs-link-hover-color: var(--primary-hover);
+    /* Force headings to always use our strong dark color, never Bootstrap's muted default */
+    --bs-heading-color: var(--text-primary);
 }
 
 body {
@@ -40,33 +42,94 @@ body {
 }
 
 .profile-page-bg {
-    background-color: var(--background); /* Keep the base background color */
-    position: relative; /* Ensure content is above pseudo-element */
-    z-index: 1; /* Ensure content is above pseudo-element */
+    background-color: var(--background);
+    min-height: 100vh;
 }
 
-.profile-page-bg::before {
-    content: '';
-    position: fixed; /* Fixed to viewport */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('/images/user.svg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.3; /* Very low opacity */
-    z-index: -1; /* Send behind content */
-}
-
-/* General text colors */
+/* General text colors — !important ensures our theme always wins over Bootstrap resets */
 h1, h2, h3, h4, h5, h6 {
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
+}
+
+/* Allow specific overrides (e.g., text-primary, text-success headings) to work */
+h1.text-primary, h2.text-primary, h3.text-primary,
+h4.text-primary, h5.text-primary, h6.text-primary {
+    color: var(--primary) !important;
+}
+h1.text-muted, h2.text-muted, h3.text-muted,
+h4.text-muted, h5.text-muted, h6.text-muted {
+    color: var(--text-secondary) !important;
+}
+h1.text-dark, h2.text-dark, h3.text-dark,
+h4.text-dark, h5.text-dark, h6.text-dark {
+    color: var(--text-primary) !important;
+}
+h1.text-white, h2.text-white, h3.text-white,
+h4.text-white, h5.text-white, h6.text-white {
+    color: #ffffff !important;
+}
+
+/* ── Contrast fix: headings inside colored backgrounds ──────────────────── */
+/* Dark/coloured surfaces → white text */
+.bg-primary h1, .bg-primary h2, .bg-primary h3,
+.bg-primary h4, .bg-primary h5, .bg-primary h6,
+.bg-dark    h1, .bg-dark    h2, .bg-dark    h3,
+.bg-dark    h4, .bg-dark    h5, .bg-dark    h6,
+.bg-success h1, .bg-success h2, .bg-success h3,
+.bg-success h4, .bg-success h5, .bg-success h6,
+.bg-danger  h1, .bg-danger  h2, .bg-danger  h3,
+.bg-danger  h4, .bg-danger  h5, .bg-danger  h6,
+.bg-info    h1, .bg-info    h2, .bg-info    h3,
+.bg-info    h4, .bg-info    h5, .bg-info    h6,
+.card-header.bg-primary h1, .card-header.bg-primary h2,
+.card-header.bg-primary h3, .card-header.bg-primary h4,
+.card-header.bg-primary h5, .card-header.bg-primary h6,
+.card-header.bg-dark    h1, .card-header.bg-dark    h2,
+.card-header.bg-dark    h3, .card-header.bg-dark    h4,
+.card-header.bg-dark    h5, .card-header.bg-dark    h6,
+.card-header.bg-success h1, .card-header.bg-success h2,
+.card-header.bg-success h3, .card-header.bg-success h4,
+.card-header.bg-success h5, .card-header.bg-success h6,
+.card-header.bg-danger  h1, .card-header.bg-danger  h2,
+.card-header.bg-danger  h3, .card-header.bg-danger  h4,
+.card-header.bg-danger  h5, .card-header.bg-danger  h6,
+.card-header.bg-info    h1, .card-header.bg-info    h2,
+.card-header.bg-info    h3, .card-header.bg-info    h4,
+.card-header.bg-info    h5, .card-header.bg-info    h6 {
+    color: #ffffff !important;
+}
+
+/* Warning (yellow) → dark text for readability */
+.bg-warning h1, .bg-warning h2, .bg-warning h3,
+.bg-warning h4, .bg-warning h5, .bg-warning h6,
+.card-header.bg-warning h1, .card-header.bg-warning h2,
+.card-header.bg-warning h3, .card-header.bg-warning h4,
+.card-header.bg-warning h5, .card-header.bg-warning h6 {
+    color: #1a1a1a !important;
 }
 
 p {
     color: var(--text-secondary);
+}
+
+/* Page header banner — consistent across all pages */
+.page-header {
+    background-color: var(--card-surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+.page-header h1, .page-header h2 {
+    color: var(--text-primary) !important;
+    font-weight: 700;
+}
+.page-header p {
+    color: var(--text-secondary);
+    margin-bottom: 0;
 }
 
 /* Card styling */
@@ -78,6 +141,27 @@ p {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
   border-radius: 8px;
 }
+
+/* Utility classes */
+.hover-up {
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+.hover-up:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.max-w-500 { max-width: 500px; }
+.transition-transform { transition: transform 0.2s ease; }
 
 .card:hover {
   transform: translateY(-2px);
@@ -94,25 +178,42 @@ p {
 
 /* Portfolio Card Specific Styling */
 .portfolio-card {
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Soft shadow */
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     background-color: var(--card-surface);
+    border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .portfolio-card:hover {
-    transform: translateY(-5px); /* Lift effect */
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* More prominent shadow */
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
 .portfolio-card-img-container {
     position: relative;
     width: 100%;
     padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-    background-color: var(--border); /* Muted light background */
+    background-color: var(--border);
     overflow: hidden;
-    border-bottom: 1px solid var(--border);
+}
+
+.portfolio-card-img-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent 60%, rgba(0, 0, 0, 0.3));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.portfolio-card:hover .portfolio-card-img-container::after {
+    opacity: 1;
 }
 
 .portfolio-card-img {
@@ -121,8 +222,13 @@ p {
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensure image covers the area */
+    object-fit: cover;
     object-position: center;
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.portfolio-card:hover .portfolio-card-img {
+    transform: scale(1.05);
 }
 
 .portfolio-card-img-fallback {
@@ -164,6 +270,7 @@ p {
 .text-truncate-2-lines {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -472,11 +579,6 @@ label {
     margin-bottom: 0.5rem;
 }
 
-.feedback-list {
-    /* max-height: 500px; */
-    /* overflow-y: auto; */
-    /* padding-right: 15px; */
-}
 
 .feedback-screenshot-container-full-width {
     width: 100%;
@@ -536,6 +638,7 @@ label {
     padding-top: 20px;
 }
 
+/* Icon-only sidebar (used in Profile.tsx inline sidebar) */
 .sidebar-icon {
     color: var(--text-secondary);
     font-size: 1.8rem;
@@ -546,6 +649,33 @@ label {
 .sidebar-icon:hover,
 .sidebar-icon.active {
     color: var(--primary);
+}
+
+/* Full sidebar links (used in ProfileSidebar.tsx) */
+.sidebar-link {
+    color: var(--text-secondary);
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.sidebar-link i {
+    font-size: 1.1rem;
+    width: 1.4rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.sidebar-link:hover {
+    background-color: rgba(37, 99, 235, 0.08);
+    color: var(--primary);
+}
+
+.sidebar-link.active {
+    background-color: rgba(37, 99, 235, 0.12);
+    color: var(--primary);
+    font-weight: 600;
 }
 
 .list-group-item {
@@ -581,64 +711,99 @@ label {
     font-weight: 600; /* Make it bold */
 }
 
-.feedback-page-container {
-    display: flex;
-    align-items: flex-start;
-}
 
-.portfolio-card-container {
-    position: sticky;
-    top: 80px;
-    width: 40%;
-    height: calc(100vh - 80px);
-    overflow-y: auto;
-    padding-right: 20px;
-}
 
-.feedbacks-container {
-    width: 60%;
-    padding-left: 20px;
-    height: calc(100vh - 80px);
-    overflow-y: auto;
-}
-
-@media (max-width: 768px) {
-    .feedback-page-container {
-        flex-direction: column;
-    }
-
-    .portfolio-card-container {
-        width: 100%;
-        position: static;
-        height: auto;
-        overflow-y: visible;
-        padding-right: 0;
-        padding-left: 0;
-    }
-
-    .feedbacks-container {
-        width: 100%;
-        height: 50vh; /* Adjust this value as needed */
-        overflow-y: auto;
-        padding-right: 0;
-        padding-left: 0;
-    }
-
-    .portfolio-card-container .card-header h3 {
-        font-size: 1.2rem;
-    }
-
-    .portfolio-card-container .card-body img {
-        max-height: 150px;
-    }
-
-    .portfolio-card-container .card-body .text-muted {
-        font-size: 0.9rem;
-    }
-}
 
 .table-container {
     max-height: 60vh;
     overflow-y: auto;
 }
 
+
+/* AI Review Specific Styling */
+.ai-scanner-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+
+.ai-scanner-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, transparent, var(--primary), transparent);
+    box-shadow: 0 0 15px var(--primary);
+    animation: scanMove 3s infinite ease-in-out;
+    z-index: 2;
+}
+
+@keyframes scanMove {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(300px); }
+    100% { transform: translateY(0); }
+}
+
+.ai-glow-card {
+    background: var(--card-surface);
+    border: 1px solid rgba(var(--bs-primary-rgb), 0.1);
+    box-shadow: 0 10px 30px rgba(var(--bs-primary-rgb), 0.05);
+    transition: all 0.3s ease;
+}
+
+.ai-glow-card:hover {
+    box-shadow: 0 15px 40px rgba(var(--bs-primary-rgb), 0.1);
+    border-color: rgba(var(--bs-primary-rgb), 0.3);
+}
+
+.ai-review-content {
+    background: var(--card-surface);
+    border-radius: 16px;
+    padding: 2rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+}
+
+.ai-review-content h1, .ai-review-content h2, .ai-review-content h3 {
+    color: var(--primary);
+    margin-top: 1.5rem;
+    font-weight: 700;
+}
+
+.ai-review-content ul, .ai-review-content ol {
+    margin-bottom: 1rem;
+}
+
+.ai-review-content blockquote {
+    border-left: 4px solid var(--primary);
+    padding-left: 1rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin: 1rem 0;
+}
+
+.pulse-primary {
+    animation: pulseLoop 2s infinite;
+}
+
+@keyframes pulseLoop {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* AI Review scanner — override global heading !important so text is visible on dark bg */
+.ai-scanner-container h1,
+.ai-scanner-container h2,
+.ai-scanner-container h3,
+.ai-scanner-container h4,
+.ai-scanner-container h5,
+.ai-scanner-container h6 {
+    color: #ffffff !important;
+}
+
+.ai-scanner-container p {
+    color: rgba(255, 255, 255, 0.8);
+}

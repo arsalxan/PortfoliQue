@@ -20,7 +20,9 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
   @Query(
       "SELECT p FROM Portfolio p JOIN p.user u WHERE "
           + "LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%')) OR "
-          + "LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%'))")
+          + "LOWER(u.username) LIKE LOWER(CONCAT('%', :query, '%')) OR "
+          + "LOWER(u.fullName) LIKE LOWER(CONCAT('%', :query, '%')) OR "
+          + "LOWER(p.url) LIKE LOWER(CONCAT('%', :query, '%'))")
   Page<Portfolio> searchByDescriptionOrUsername(@Param("query") String query, Pageable pageable);
 
   @Query(

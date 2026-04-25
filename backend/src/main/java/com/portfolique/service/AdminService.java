@@ -13,8 +13,10 @@ import com.portfolique.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -45,10 +47,12 @@ public class AdminService {
   @Transactional
   public void deleteUser(Long userId, Long currentAdminId) {
     if (userId.equals(currentAdminId)) {
-      throw new IllegalArgumentException("Cannot delete your own account");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot delete your own account");
     }
     User user =
-        userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     userRepository.delete(user);
   }
 
@@ -67,7 +71,8 @@ public class AdminService {
     Portfolio portfolio =
         portfolioRepository
             .findById(portfolioId)
-            .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
     portfolioRepository.delete(portfolio);
   }
 
@@ -81,7 +86,8 @@ public class AdminService {
     Feedback feedback =
         feedbackRepository
             .findById(feedbackId)
-            .orElseThrow(() -> new RuntimeException("Feedback not found"));
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Feedback not found"));
     feedbackRepository.delete(feedback);
   }
 

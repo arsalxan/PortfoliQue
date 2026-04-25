@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (data: LoginRequest): Promise<string> => {
     const response = await authService.login(data);
     const userData: User = {
-      id: 0, // Will be updated when profile endpoint is available
+      id: response.id,           // real DB id from backend
       username: response.username,
       email: response.email,
       fullName: response.fullName,

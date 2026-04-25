@@ -24,7 +24,7 @@ public class AuthController {
       AuthResponse response = authService.register(request);
       return ResponseEntity.status(HttpStatus.CREATED).body(response);
     } catch (Exception e) {
-      return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+      return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
     }
   }
 
@@ -34,7 +34,7 @@ public class AuthController {
       AuthResponse response = authService.login(request);
       return ResponseEntity.ok(response);
     } catch (Exception e) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", e.getMessage()));
     }
   }
 
@@ -44,7 +44,7 @@ public class AuthController {
       AuthResponse response = authService.verifyEmail(token);
       return ResponseEntity.ok(response);
     } catch (Exception e) {
-      return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+      return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
     }
   }
 }

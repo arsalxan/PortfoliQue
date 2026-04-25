@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.tsx';
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -24,13 +25,15 @@ export default function Login() {
     setIsSubmitting(true);
     try {
       await login({ username, password });
+      toast.success('Welcome back to PortfoliQue!');
       navigate('/');
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
-        const axiosErr = err as { response?: { data?: { message?: string } } };
-        setError(axiosErr.response?.data?.message || 'Login failed. Please check your credentials.');
+        const axiosErr = err as { response?: { data?: { message?: string, error?: string } } };
+        setError(axiosErr.response?.data?.error || axiosErr.response?.data?.message || 'Login failed. Please check your credentials.');
       } else {
         setError('Login failed. Please try again.');
+        toast.error('Unable to connect to service.');
       }
     } finally {
       setIsSubmitting(false);

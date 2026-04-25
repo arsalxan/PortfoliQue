@@ -5,7 +5,7 @@ export default function Home() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="main-content-area">
+    <div className="main-content-area fade-in">
       <div className="container mt-4">
         {/* Hero Section */}
         <div className="row hero-section align-items-center mb-5">

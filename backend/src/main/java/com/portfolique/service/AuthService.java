@@ -8,16 +8,32 @@ import com.portfolique.entity.User;
 import com.portfolique.repository.UserRepository;
 import com.portfolique.security.JwtService;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
+  private static final Set<String> ALLOWED_EMAIL_DOMAINS =
+      Set.of(
+          "gmail.com",
+          "outlook.com",
+          "hotmail.com",
+          "yahoo.com",
+          "icloud.com",
+          "proton.me",
+          "protonmail.com",
+          "live.com",
+          "msn.com",
+          "me.com");
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
@@ -27,17 +43,16 @@ public class AuthService {
 
   public AuthResponse register(RegisterRequest request) {
     if (userRepository.existsByUsername(request.getUsername().toLowerCase())) {
-      throw new RuntimeException("Username already exists");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already exists");
     }
     if (userRepository.existsByEmail(request.getEmail().toLowerCase())) {
-      throw new RuntimeException("Email already exists");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already exists");
     }
 
     String email = request.getEmail().toLowerCase();
-    if (!email.endsWith("@gmail.com")
-        && !email.endsWith("@outlook.com")
-        && !email.endsWith("@chitkara.edu.in")) {
-      throw new RuntimeException("Email domain not permitted");
+    String domain = email.contains("@") ? email.substring(email.indexOf('@') + 1) : "";
+    if (!ALLOWED_EMAIL_DOMAINS.contains(domain)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email domain not permitted");
     }
 
     String token = UUID.randomUUID().toString();
@@ -70,15 +85,17 @@ public class AuthService {
     User user =
         userRepository
             .findByUsername(request.getUsername().toLowerCase())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
     if (!user.isEmailVerified()) {
-      throw new RuntimeException("Please verify your email before logging in.");
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN, "Please verify your email before logging in.");
     }
 
     String jwt = jwtService.generateToken(user);
 
     return AuthResponse.builder()
+        .id(user.getId())
         .token(jwt)
         .username(user.getUsername())
         .fullName(user.getFullName())
@@ -93,10 +110,13 @@ public class AuthService {
     User user =
         userRepository
             .findByEmailVerificationToken(token)
-            .orElseThrow(() -> new RuntimeException("Invalid or expired verification token"));
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Invalid or expired verification token"));
 
     if (user.getEmailVerificationTokenExpires().isBefore(LocalDateTime.now())) {
-      throw new RuntimeException("Verification token has expired");
+      throw new ResponseStatusException(HttpStatus.GONE, "Verification token has expired");
     }
 
     user.setEmailVerified(true);
@@ -107,6 +127,7 @@ public class AuthService {
     String jwt = jwtService.generateToken(user);
 
     return AuthResponse.builder()
+        .id(user.getId())
         .token(jwt)
         .username(user.getUsername())
         .fullName(user.getFullName())

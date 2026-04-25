@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { portfolioService } from '../../services/portfolioService.ts';
 import type { Portfolio, PortfolioPage } from '../../types/portfolio.ts';
 import PortfolioCard from '../../components/portfolio/PortfolioCard.tsx';
+import LoadingSpinner from '../../components/common/LoadingSpinner.tsx';
 
 export default function PortfolioList() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
@@ -49,38 +50,30 @@ export default function PortfolioList() {
   };
 
   return (
-    <div className="container mt-4 mb-5">
-      <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-        <h1 className="h2 fw-bold text-primary mb-0">All Portfolios</h1>
-        <Link to="/portfolios/new" className="btn btn-primary">
-          <i className="fas fa-plus me-2"></i> Add New Portfolio
+    <div className="container mt-4 mb-5 fade-in">
+
+      {/* Page header: title + search + add button in one unified bar */}
+      <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-5">
+        <h2 className="mb-0 fw-bold">Explore Portfolios</h2>
+        <form onSubmit={handleSearch} className="d-flex gap-2 flex-grow-1" style={{ maxWidth: '480px' }}>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search by description or username…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <button className="btn btn-outline-primary px-3 flex-shrink-0" type="submit">
+            <i className="fas fa-search"></i>
+          </button>
+        </form>
+        <Link to="/portfolios/new" className="btn btn-primary flex-shrink-0">
+          <i className="fas fa-plus me-2"></i> Add New
         </Link>
       </div>
 
-      <div className="row mb-5 justify-content-center">
-        <div className="col-md-8 col-lg-6">
-          <form onSubmit={handleSearch} className="input-group shadow-sm">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search portfolios by user, description or URL..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button className="btn btn-primary px-4" type="submit">
-              <i className="fas fa-search"></i>
-            </button>
-          </form>
-        </div>
-      </div>
-
       {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-          <p className="mt-2 text-muted">Fetching portfolios...</p>
-        </div>
+        <LoadingSpinner />
       ) : error ? (
         <div className="alert alert-danger text-center shadow-sm" role="alert">
           <i className="fas fa-exclamation-triangle me-2"></i> {error}

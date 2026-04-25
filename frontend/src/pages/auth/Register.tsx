@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.tsx';
+import toast from 'react-hot-toast';
 
 export default function Register() {
   const [username, setUsername] = useState('');
@@ -60,7 +61,7 @@ export default function Register() {
   };
 
   const getInputClass = (field: string): string => {
-    const value = { username, email, fullName, password }[field] || '';
+    const value = { username, email, fullName, password }[field as keyof typeof errors] || '';
     if (!value) return 'form-control';
     return `form-control ${errors[field] ? 'is-invalid' : 'is-valid'}`;
   };
@@ -87,7 +88,11 @@ export default function Register() {
 
     setIsSubmitting(true);
     try {
-      await register({ username, email, fullName, password });
+      const successMsg = await register({ username, email, fullName, password });
+      toast.success(successMsg || 'Account created! Please check your email to verify your account.', {
+        duration: 10000,
+        icon: '📧'
+      });
       navigate('/login');
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
@@ -95,6 +100,7 @@ export default function Register() {
         setServerError(axiosErr.response?.data?.message || 'Registration failed. Please try again.');
       } else {
         setServerError('Registration failed. Please try again.');
+        toast.error('Unable to complete registration.');
       }
     } finally {
       setIsSubmitting(false);
@@ -102,7 +108,7 @@ export default function Register() {
   };
 
   return (
-    <div className="container-fluid d-flex flex-column min-vh-100">
+    <div className="container-fluid d-flex flex-column min-vh-100 fade-in">
       <div className="row flex-grow-1 justify-content-center align-items-center">
         {/* Illustration Section */}
         <div className="col-12 col-md-6 d-flex justify-content-center align-items-center p-4">
@@ -206,12 +212,9 @@ export default function Register() {
                 <div className="d-grid gap-2 mb-3">
                   <button
                     type="submit"
-                    className="btn btn-primary"
+                    className="btn btn-primary shadow-sm"
                     disabled={isSubmitting}
                     style={{
-                      backgroundColor: 'var(--primary)',
-                      borderColor: 'var(--primary)',
-                      color: 'white',
                       borderRadius: '8px',
                       padding: '10px',
                       fontWeight: 600,

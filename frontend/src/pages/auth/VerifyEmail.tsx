@@ -1,18 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { authService } from '../../services/authService.ts';
 
 export default function VerifyEmail() {
+  const hasVerified = useRef(false);
   const { token } = useParams<{ token: string }>();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    if (!token) {
-      setStatus('error');
-      setMessage('Invalid verification link.');
-      return;
-    }
+    if (!token || hasVerified.current) return;
+    hasVerified.current = true;
 
     authService
       .verifyEmail(token)
