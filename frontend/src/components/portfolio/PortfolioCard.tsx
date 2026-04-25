@@ -18,7 +18,7 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
     <div className="col">
       <div className="portfolio-card card h-100 shadow-sm">
         <div className="portfolio-card-img-container">
-          <Link to={`/portfolios/${portfolio.id}/feedbacks`} className="d-block">
+          <a href={portfolio.url} target="_blank" rel="noopener noreferrer" className="d-block">
             <img 
               src={displayScreenshot} 
               className="portfolio-card-img" 
@@ -27,7 +27,7 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
                 (e.target as HTMLImageElement).src = '/images/defaultscreenshot.svg';
               }}
             />
-          </Link>
+          </a>
         </div>
         <div className="card-body d-flex flex-column">
           <div className="d-flex justify-content-between align-items-start mb-2">
