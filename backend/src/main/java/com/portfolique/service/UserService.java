@@ -8,6 +8,8 @@ import com.portfolique.repository.PortfolioRepository;
 import com.portfolique.repository.UserRepository;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final CloudinaryService cloudinaryService;
 
+  @Cacheable(value = "userProfiles", key = "#user.id")
   @Transactional(readOnly = true)
   public UserProfileResponse getProfile(User user) {
     long portfolios = portfolioRepository.countByUser(user);
@@ -44,6 +47,7 @@ public class UserService {
         .build();
   }
 
+  @CacheEvict(value = "userProfiles", key = "#user.id")
   @Transactional
   public UserProfileResponse updateProfile(User user, UpdateProfileRequest req, MultipartFile dp)
       throws IOException {

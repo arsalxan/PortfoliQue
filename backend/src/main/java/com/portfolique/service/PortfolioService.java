@@ -7,6 +7,8 @@ import com.portfolique.entity.User;
 import com.portfolique.repository.PortfolioRepository;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -28,11 +30,13 @@ public class PortfolioService {
     this.cloudinaryService = cloudinaryService;
   }
 
+  @Cacheable(value = "portfolios", key = "#pageable")
   @Transactional(readOnly = true)
   public Page<PortfolioResponse> getAllPortfolios(Pageable pageable) {
     return portfolioRepository.findAllSortedByFewestFeedbacks(pageable).map(this::mapToResponse);
   }
 
+  @Cacheable(value = "userPortfolios", key = "#user.id + '-' + #pageable")
   @Transactional(readOnly = true)
   public Page<PortfolioResponse> getMyPortfolios(User user, Pageable pageable) {
     return portfolioRepository
@@ -40,6 +44,7 @@ public class PortfolioService {
         .map(this::mapToResponse);
   }
 
+  @CacheEvict(value = {"portfolios", "userPortfolios", "userProfiles"}, allEntries = true)
   @Transactional
   public PortfolioResponse createPortfolio(
       PortfolioRequest req, MultipartFile screenshot, User currentUser) {
@@ -65,6 +70,7 @@ public class PortfolioService {
     return mapToResponse(saved);
   }
 
+  @CacheEvict(value = {"portfolios", "userPortfolios", "portfolioDetails"}, allEntries = true)
   @Transactional
   public PortfolioResponse updatePortfolio(
       Long id, PortfolioRequest req, MultipartFile screenshot, User currentUser) {
@@ -105,6 +111,7 @@ public class PortfolioService {
     return mapToResponse(saved);
   }
 
+  @CacheEvict(value = {"portfolios", "userPortfolios", "portfolioDetails", "userProfiles"}, allEntries = true)
   @Transactional
   public void deletePortfolio(Long id, User currentUser) {
     Portfolio portfolio =
@@ -136,6 +143,7 @@ public class PortfolioService {
     portfolioRepository.delete(portfolio);
   }
 
+  @Cacheable(value = "portfolioDetails", key = "#id")
   @Transactional(readOnly = true)
   public PortfolioResponse getPortfolioById(Long id) {
     Portfolio portfolio =
@@ -146,6 +154,7 @@ public class PortfolioService {
     return mapToResponse(portfolio);
   }
 
+  @Cacheable(value = "portfolios", key = "'search-' + #query + '-' + #pageable")
   @Transactional(readOnly = true)
   public Page<PortfolioResponse> searchPortfolios(String query, Pageable pageable) {
     if (query == null || query.trim().isEmpty()) {

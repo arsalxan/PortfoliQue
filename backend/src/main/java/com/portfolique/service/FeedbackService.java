@@ -8,6 +8,8 @@ import com.portfolique.entity.User;
 import com.portfolique.repository.FeedbackRepository;
 import com.portfolique.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ public class FeedbackService {
   private final NotificationService notificationService;
   private final AiService aiService;
 
+  @Cacheable(value = "feedbacks", key = "#portfolioId + '-' + #pageable")
   @Transactional(readOnly = true)
   public Page<FeedbackResponse> getFeedbacksForPortfolio(Long portfolioId, Pageable pageable) {
     Portfolio portfolio =
@@ -36,6 +39,7 @@ public class FeedbackService {
         .map(this::mapToResponse);
   }
 
+  @Cacheable(value = "userFeedbacks", key = "#user.id + '-' + #pageable")
   @Transactional(readOnly = true)
   public Page<FeedbackResponse> getMyFeedbacks(User user, Pageable pageable) {
     return feedbackRepository
@@ -43,6 +47,7 @@ public class FeedbackService {
         .map(this::mapToResponse);
   }
 
+  @CacheEvict(value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles"}, allEntries = true)
   @Transactional
   public FeedbackResponse createFeedback(Long portfolioId, FeedbackRequest req, User currentUser) {
     Portfolio portfolio =
@@ -94,6 +99,7 @@ public class FeedbackService {
     return aiService.summarizeFeedback(feedback);
   }
 
+  @CacheEvict(value = {"feedbacks", "userFeedbacks"}, allEntries = true)
   @Transactional
   public FeedbackResponse updateFeedback(Long feedbackId, FeedbackRequest req, User currentUser) {
     Feedback feedback =
@@ -119,6 +125,7 @@ public class FeedbackService {
     return mapToResponse(saved);
   }
 
+  @CacheEvict(value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles"}, allEntries = true)
   @Transactional
   public void deleteFeedback(Long feedbackId, User currentUser) {
     Feedback feedback =
