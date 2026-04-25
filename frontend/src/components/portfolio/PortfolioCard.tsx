@@ -18,7 +18,14 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
     <div className="col">
       <div className="portfolio-card card h-100 shadow-sm">
         <div className="portfolio-card-img-container">
-          <a href={portfolio.url} target="_blank" rel="noopener noreferrer" className="d-block">
+          <a 
+            href={portfolio.url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="position-absolute top-0 start-0 w-100 h-100 d-block"
+            style={{ zIndex: 2 }}
+            aria-label={`Visit ${portfolio.fullName}'s Portfolio`}
+          >
             <img 
               src={displayScreenshot} 
               className="portfolio-card-img" 
