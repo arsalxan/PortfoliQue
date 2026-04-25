@@ -72,9 +72,13 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
               </a>
             )}
             
-            {isOwner && (
+            {isOwner ? (
               <Link to={`/portfolios/${portfolio.id}/ai-review`} className="btn btn-info btn-sm d-flex align-items-center">
                 <i className="fas fa-robot me-1"></i> AI Review
+              </Link>
+            ) : (
+              <Link to={`/portfolios/${portfolio.id}/feedbacks/new`} className="btn btn-primary btn-sm d-flex align-items-center">
+                <i className="fas fa-comment-dots me-1"></i> Give Feedback
               </Link>
             )}
 
