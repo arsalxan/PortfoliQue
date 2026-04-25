@@ -18,7 +18,7 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
     <div className="col">
       <div className="portfolio-card card h-100 shadow-sm">
         <div className="portfolio-card-img-container">
-          <a href={portfolio.url} target="_blank" rel="noopener noreferrer" className="d-block">
+          <Link to={`/portfolios/${portfolio.id}/feedbacks`} className="d-block">
             <img 
               src={displayScreenshot} 
               className="portfolio-card-img" 
@@ -27,14 +27,12 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
                 (e.target as HTMLImageElement).src = '/images/defaultscreenshot.svg';
               }}
             />
-          </a>
+          </Link>
         </div>
         <div className="card-body d-flex flex-column">
           <div className="d-flex justify-content-between align-items-start mb-2">
-            <h5 className="card-title fw-bold mb-0 text-truncate me-2">
-              <a href={portfolio.url} target="_blank" rel="noopener noreferrer" className="text-decoration-none text-primary-emphasis">
-                {portfolio.fullName}'s Portfolio
-              </a>
+            <h5 className="card-title fw-bold mb-0 text-truncate me-2 text-primary-emphasis">
+              {portfolio.fullName}'s Portfolio
             </h5>
             <Link to={`/portfolios/${portfolio.id}/feedbacks`} className="badge bg-primary-subtle text-primary-emphasis rounded-pill px-3 py-2 text-decoration-none">
               <i className="fas fa-comments me-1"></i> {portfolio.feedbackCount || 0}
@@ -50,6 +48,14 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
           </p>
 
           <div className="mt-auto pt-3 d-flex flex-wrap justify-content-end gap-2">
+            <a 
+              href={portfolio.url} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="btn btn-outline-primary btn-sm d-flex align-items-center"
+            >
+              <i className="fas fa-external-link-alt me-1"></i> Visit
+            </a>
             {portfolio.gitRepo && (
               <a 
                 href={portfolio.gitRepo} 
