@@ -5,6 +5,7 @@ import { feedbackService } from '../../services/feedbackService.ts';
 import type { Portfolio } from '../../types/portfolio.ts';
 import type { FeedbackRequest } from '../../types/feedback.ts';
 import PortfolioCard from '../../components/portfolio/PortfolioCard.tsx';
+import toast from 'react-hot-toast';
 
 export default function FeedbackCreate() {
   const { id } = useParams<{ id: string }>();
@@ -39,7 +40,7 @@ export default function FeedbackCreate() {
 
   const getValidationClass = (value?: string) => {
     if (!value) return '';
-    return value.length >= 20 ? 'is-valid border-success shadow-sm' : 'is-invalid border-danger';
+    return value.length >= 20 ? 'is-valid border-success' : 'border-light-subtle';
   };
 
   const isValid = Object.values(formData).some(value => (value || '').length >= 20);
@@ -53,9 +54,11 @@ export default function FeedbackCreate() {
 
     try {
       await feedbackService.createFeedback(parseInt(id), formData);
+      toast.success('Feedback submitted successfully!');
       navigate(`/portfolios/${id}/feedbacks`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to submit feedback.');
+      toast.error('Submission failed.');
     } finally {
       setIsSubmitting(false);
     }
@@ -71,90 +74,124 @@ export default function FeedbackCreate() {
     );
   }
 
-  const fields: { id: keyof FeedbackRequest; label: string; placeholder: string }[] = [
-    { id: 'design', label: 'Design', placeholder: 'Visual aesthetics, layout, typography, color palette...' },
-    { id: 'responsiveness', label: 'Responsiveness', placeholder: 'How it works on mobile, tablet, and desktop?' },
-    { id: 'content', label: 'Content/Copywriting', placeholder: 'Is the text clear, professional, and engaging?' },
-    { id: 'uxFlow', label: 'UX Flow', placeholder: 'Navigation, ease of use, call-to-actions...' },
-    { id: 'accessibility', label: 'Accessibility', placeholder: 'Alt text, contrast, screen reader compatibility...' },
-    { id: 'technicalPerformance', label: 'Technical Performance', placeholder: 'Load speed, animations, clean code impressions...' },
-    { id: 'additional', label: 'Additional Thoughts', placeholder: 'Anything else you noticed?' },
+  const fields: { id: keyof FeedbackRequest; label: string; icon: string; placeholder: string }[] = [
+    { id: 'design', label: 'Design & Aesthetics', icon: 'fa-palette', placeholder: 'Visual style, typography, color palette...' },
+    { id: 'responsiveness', label: 'Responsiveness', icon: 'fa-mobile-alt', placeholder: 'Mobile layout, tablet adaptability...' },
+    { id: 'content', label: 'Content Quality', icon: 'fa-font', placeholder: 'Clarity, professional tone, engagement...' },
+    { id: 'uxFlow', label: 'UX & Navigation', icon: 'fa-route', placeholder: 'User flow, ease of use, logic...' },
+    { id: 'accessibility', label: 'Accessibility', icon: 'fa-universal-access', placeholder: 'Contrast, alt text, ARIA roles...' },
+    { id: 'technicalPerformance', label: 'Performance', icon: 'fa-bolt', placeholder: 'Load speed, animations, responsiveness...' },
+    { id: 'additional', label: 'Additional Notes', icon: 'fa-sticky-note', placeholder: 'Any other observations?' },
   ];
 
   return (
-    <div className="container-fluid py-4">
-      <div className="feedback-page-container">
-        {/* Left Side: Portfolio Card */}
-        <div className="portfolio-card-container">
-          <div className="mb-3">
-            <Link to={`/portfolios/${id}/feedbacks`} className="btn btn-sm btn-outline-secondary mb-3">
-              <i className="fas fa-arrow-left me-2"></i> Back to Feedbacks
-            </Link>
-            <h2 className="h4 fw-bold mb-3">You're Reviewing</h2>
-          </div>
-          {portfolio && <PortfolioCard portfolio={portfolio} />}
-          <div className="mt-4 p-3 bg-light rounded border">
-            <h6 className="fw-bold small text-primary mb-2"><i className="fas fa-info-circle me-1"></i> Feedback Requirements:</h6>
-            <p className="small text-muted mb-0">
-              To ensure high-quality reviews, at least one section must contain **at least 20 characters**.
-            </p>
-          </div>
-        </div>
+    <div className="container-fluid py-5 bg-light-subtle min-vh-100">
+      <div className="container">
+        <div className="row g-4 justify-content-center">
+          
+          {/* Portfolio Sidebar */}
+          <div className="col-lg-4">
+            <div className="sticky-top" style={{ top: '80px' }}>
+              <div className="d-flex align-items-center mb-3">
+                <Link to={`/portfolios/${id}/feedbacks`} className="btn btn-outline-primary btn-sm rounded-pill px-3">
+                  <i className="fas fa-arrow-left me-2"></i>Back
+                </Link>
+                <h5 className="mb-0 fw-bold ms-3">Reviewing Portfolio</h5>
+              </div>
+              
+              {portfolio && (
+                <div className="mb-4">
+                  <PortfolioCard portfolio={portfolio} />
+                </div>
+              )}
 
-        {/* Right Side: Form */}
-        <div className="feedbacks-container">
-          <div className="card shadow-sm border-0 mb-5">
-            <div className="card-header bg-primary text-white p-3">
-              <h2 className="h5 mb-0 fw-bold"><i className="fas fa-pen-nib me-2"></i> Submit Feedback</h2>
+              <div className="card border-0 shadow-sm bg-primary text-white overflow-hidden">
+                <div className="card-body p-4 position-relative">
+                  <i className="fas fa-quote-right position-absolute opacity-10 end-0 bottom-0 mb-n2 me-n2" style={{ fontSize: '100px' }}></i>
+                  <h6 className="fw-bold mb-3"><i className="fas fa-info-circle me-2"></i>Pro-Tip</h6>
+                  <p className="small mb-0 opacity-90">
+                    High-quality feedback helps creators grow. Focus on constructive criticism and suggest actionable improvements.
+                  </p>
+                  <hr className="my-3 opacity-25" />
+                  <p className="small fw-semibold mb-0">
+                    * Requirement: At least 20 chars in 1 section.
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="card-body p-4">
-              {error && <div className="alert alert-danger mb-4">{error}</div>}
+          </div>
 
-              <form onSubmit={handleSubmit}>
-                <div className="row g-4">
-                  {fields.map((field) => (
-                    <div key={field.id} className="col-12">
-                      <label className="form-label fw-bold small text-secondary uppercase tracking-wider">
-                        {field.label}
-                      </label>
-                      <textarea
-                        className={`form-control ${getValidationClass(formData[field.id])}`}
-                        rows={3}
-                        placeholder={field.placeholder}
-                        value={formData[field.id]}
-                        onChange={(e) => handleInputChange(field.id, e.target.value)}
-                        style={{ transition: 'all 0.3s ease' }}
-                      ></textarea>
-                      {formData[field.id] && (formData[field.id] || '').length < 20 && (
-                        <div className="small text-danger mt-1">
-                          {20 - (formData[field.id] || '').length} more characters needed for this section to count.
+          {/* Feedback Form */}
+          <div className="col-lg-8">
+            <div className="card border-0 shadow-lg rounded-4">
+              <div className="card-body p-4 p-md-5">
+                <div className="mb-5">
+                  <h1 className="h3 fw-bold text-dark mb-2">Share Your Expertise</h1>
+                  <p className="text-muted">Analyze the work and provide detailed feedback across these categories.</p>
+                </div>
+
+                {error && <div className="alert alert-danger rounded-3 mb-4">{error}</div>}
+
+                <form onSubmit={handleSubmit}>
+                  <div className="row g-4">
+                    {fields.map((field) => (
+                      <div key={field.id} className="col-12">
+                        <div className="d-flex justify-content-between align-items-end mb-2">
+                          <label className="form-label fw-bold small text-primary text-uppercase mb-0">
+                            <i className={`fas ${field.icon} me-2`}></i>{field.label}
+                          </label>
+                          <span className={`small ${(formData[field.id]?.length || 0) >= 20 ? 'text-success' : 'text-muted'}`}>
+                            {(formData[field.id]?.length || 0)}/20+
+                          </span>
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                        <textarea
+                          className={`form-control border-2 rounded-3 p-3 ${getValidationClass(formData[field.id])}`}
+                          rows={3}
+                          placeholder={field.placeholder}
+                          value={formData[field.id]}
+                          onChange={(e) => handleInputChange(field.id, e.target.value)}
+                          style={{ fontSize: '0.95rem' }}
+                        ></textarea>
+                      </div>
+                    ))}
+                  </div>
 
-                <div className="d-grid gap-2 mt-5">
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-lg fw-bold shadow-sm py-3"
-                    disabled={isSubmitting || !isValid}
-                  >
-                    {isSubmitting ? (
-                      <><span className="spinner-border spinner-border-sm me-2"></span> Submitting...</>
-                    ) : (
-                      <><i className="fas fa-paper-plane me-2"></i> Submit Feedback</>
-                    )}
-                  </button>
-                  {!isValid && (
-                    <div className="text-center small text-danger mt-2">
-                      Please provide at least one meaningful feedback section (20+ chars).
+                  <div className="mt-5 pt-4 border-top">
+                    <div className="row align-items-center">
+                      <div className="col-md-7 mb-3 mb-md-0">
+                        {!isValid && (
+                          <div className="d-flex align-items-center text-danger small">
+                            <i className="fas fa-exclamation-triangle me-2"></i>
+                            Please write at least 20 characters in any one section.
+                          </div>
+                        )}
+                        {isValid && (
+                          <div className="d-flex align-items-center text-success small fw-bold">
+                            <i className="fas fa-check-circle me-2"></i>
+                            Ready to submit!
+                          </div>
+                        )}
+                      </div>
+                      <div className="col-md-5 text-md-end">
+                        <button
+                          type="submit"
+                          className="btn btn-primary px-5 py-2 fw-bold rounded-pill shadow-sm"
+                          disabled={isSubmitting || !isValid}
+                        >
+                          {isSubmitting ? (
+                            <><span className="spinner-border spinner-border-sm me-2"></span>Submitting...</>
+                          ) : (
+                            <><i className="fas fa-paper-plane me-2"></i>Post Feedback</>
+                          )}
+                        </button>
+                      </div>
                     </div>
-                  )}
-                </div>
-              </form>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
