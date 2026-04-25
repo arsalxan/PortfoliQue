@@ -80,13 +80,6 @@ export default function FeedbackList() {
                 {portfolio && <PortfolioCard portfolio={portfolio} />}
               </div>
             </div>
-
-            <Link
-              to={`/portfolios/${id}/feedbacks/new`}
-              className="btn btn-primary btn-lg w-100 shadow-sm"
-            >
-              <i className="fas fa-pen me-2"></i> Give Your Feedback
-            </Link>
           </div>
         </div>
 
@@ -98,10 +91,18 @@ export default function FeedbackList() {
               <h2 className="h4 fw-bold mb-0">Community Feedbacks</h2>
               <p className="text-muted small mb-0">What the community thinks about this portfolio</p>
             </div>
-            <span className="badge rounded-pill border fw-normal px-3 py-2"
-              style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: 'var(--primary)', fontSize: '0.85rem' }}>
-              {portfolio?.feedbackCount || 0} reviews
-            </span>
+            <div className="d-flex align-items-center gap-3">
+              <Link
+                to={`/portfolios/${id}/feedbacks/new`}
+                className="btn btn-primary btn-sm rounded-pill px-4 shadow-sm fw-bold"
+              >
+                <i className="fas fa-pen-nib me-2"></i> Give Feedback
+              </Link>
+              <span className="badge rounded-pill border fw-normal px-3 py-2"
+                style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: 'var(--primary)', fontSize: '0.85rem' }}>
+                {portfolio?.feedbackCount || 0} reviews
+              </span>
+            </div>
           </div>
 
           {error && <div className="alert alert-danger">{error}</div>}

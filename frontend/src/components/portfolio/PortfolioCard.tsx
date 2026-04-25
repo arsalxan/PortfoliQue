@@ -18,13 +18,11 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
     <div className="col">
       <div className="portfolio-card card h-100 shadow-sm">
         <div className="portfolio-card-img-container">
-          <a 
-            href={portfolio.url} 
-            target="_blank" 
-            rel="noopener noreferrer" 
+          <Link 
+            to={`/portfolios/${portfolio.id}/feedbacks`} 
             className="position-absolute top-0 start-0 w-100 h-100 d-block"
             style={{ zIndex: 2 }}
-            aria-label={`Visit ${portfolio.fullName}'s Portfolio`}
+            aria-label={`View ${portfolio.fullName}'s Portfolio Feedbacks`}
           >
             <img 
               src={displayScreenshot} 
@@ -34,7 +32,7 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
                 (e.target as HTMLImageElement).src = '/images/defaultscreenshot.svg';
               }}
             />
-          </a>
+          </Link>
         </div>
         <div className="card-body d-flex flex-column">
           <div className="d-flex justify-content-between align-items-start mb-2">
@@ -74,13 +72,9 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
               </a>
             )}
             
-            {isOwner ? (
+            {isOwner && (
               <Link to={`/portfolios/${portfolio.id}/ai-review`} className="btn btn-info btn-sm d-flex align-items-center">
                 <i className="fas fa-robot me-1"></i> AI Review
-              </Link>
-            ) : (
-              <Link to={`/portfolios/${portfolio.id}/feedbacks/new`} className="btn btn-primary btn-sm d-flex align-items-center">
-                <i className="fas fa-comment-dots me-1"></i> Give Feedback
               </Link>
             )}
 
