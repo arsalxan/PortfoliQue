@@ -48,7 +48,10 @@ export default function AiReview() {
               </div>
             </div>
           </div>
-          <p className="text-secondary">This usually takes about 5-10 seconds as our AI models process the portfolio site.</p>
+          <p className="text-dark fw-medium mt-3">
+            <i className="fas fa-hourglass-half me-2 text-primary"></i>
+            This usually takes about 5-10 seconds as our AI models process the portfolio site.
+          </p>
         </div>
       </div>
     );

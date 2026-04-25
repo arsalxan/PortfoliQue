@@ -105,15 +105,15 @@ export default function FeedbackCreate() {
                 </div>
               )}
 
-              <div className="card border-0 shadow-sm bg-primary text-white overflow-hidden">
+              <div className="card border-0 shadow-sm bg-white overflow-hidden border-start border-primary border-4">
                 <div className="card-body p-4 position-relative">
-                  <i className="fas fa-quote-right position-absolute opacity-10 end-0 bottom-0 mb-n2 me-n2" style={{ fontSize: '100px' }}></i>
-                  <h6 className="fw-bold mb-3"><i className="fas fa-info-circle me-2"></i>Pro-Tip</h6>
-                  <p className="small mb-0 opacity-90">
+                  <i className="fas fa-lightbulb position-absolute opacity-10 end-0 bottom-0 mb-n2 me-n2 text-primary" style={{ fontSize: '80px' }}></i>
+                  <h6 className="fw-bold mb-3 text-primary"><i className="fas fa-info-circle me-2"></i>Pro-Tip</h6>
+                  <p className="small mb-0 text-secondary">
                     High-quality feedback helps creators grow. Focus on constructive criticism and suggest actionable improvements.
                   </p>
-                  <hr className="my-3 opacity-25" />
-                  <p className="small fw-semibold mb-0">
+                  <hr className="my-3 opacity-10" />
+                  <p className="small fw-semibold text-dark mb-0">
                     * Requirement: At least 20 chars in 1 section.
                   </p>
                 </div>
