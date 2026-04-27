@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { userService } from '../../services/userService.ts';
 import type { UserProfileResponse } from '../../types/user';
@@ -28,7 +28,6 @@ export default function Profile() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProfile();
