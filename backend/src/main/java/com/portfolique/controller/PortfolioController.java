@@ -107,7 +107,12 @@ public class PortfolioController {
           HttpStatus.BAD_GATEWAY, "Scraping failed: " + analysis.getError());
     }
 
-    String reviewText = aiService.generatePortfolioReview(analysis);
+    String reviewText;
+    try {
+      reviewText = aiService.generatePortfolioReview(analysis);
+    } catch (Exception e) {
+      reviewText = "AI review is currently unavailable. Please try again later.";
+    }
 
     return ResponseEntity.ok(
         com.portfolique.dto.response.AiReviewResponse.builder()

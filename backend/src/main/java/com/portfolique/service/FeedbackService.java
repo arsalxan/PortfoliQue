@@ -98,7 +98,11 @@ public class FeedbackService {
             .findById(feedbackId)
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Feedback not found"));
-    return aiService.summarizeFeedback(feedback);
+    try {
+      return aiService.summarizeFeedback(feedback);
+    } catch (Exception e) {
+      return "Summary could not be generated at this time. Please try again later.";
+    }
   }
 
   @CacheEvict(

@@ -25,7 +25,6 @@ public class FeedbackController {
 
   private final FeedbackService feedbackService;
   private final UserRepository userRepository;
-  private final com.portfolique.service.AiService aiService;
 
   @GetMapping("/portfolios/{id}/feedbacks")
   public ResponseEntity<Page<FeedbackResponse>> getFeedbacksForPortfolio(

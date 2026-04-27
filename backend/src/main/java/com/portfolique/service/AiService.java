@@ -74,7 +74,7 @@ public class AiService {
       return chatClient.prompt().user(prompt).call().content();
     } catch (Exception e) {
       log.error("Spring AI Gemini Error: {}", e.getMessage());
-      return "Internal error calling AI service: " + e.getMessage();
+      throw e;
     }
   }
 
