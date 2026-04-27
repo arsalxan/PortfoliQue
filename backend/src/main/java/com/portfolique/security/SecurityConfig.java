@@ -37,6 +37,8 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/api/v1/auth/**")
                     .permitAll()
+                    .requestMatchers("/api/v1/health")
+                    .permitAll()
                     .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/portfolios")
                     .permitAll()
                     .requestMatchers(
