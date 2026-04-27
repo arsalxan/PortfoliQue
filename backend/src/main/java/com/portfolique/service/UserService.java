@@ -4,6 +4,7 @@ import com.portfolique.dto.request.UpdateProfileRequest;
 import com.portfolique.dto.response.UserProfileResponse;
 import com.portfolique.entity.User;
 import com.portfolique.repository.FeedbackRepository;
+import com.portfolique.repository.NotificationRepository;
 import com.portfolique.repository.PortfolioRepository;
 import com.portfolique.repository.UserRepository;
 import java.io.IOException;
@@ -100,7 +101,8 @@ public class UserService {
     // 2. Delete feedbacks given BY the user
     feedbackRepository.deleteAllByUser(user);
 
-    // 3. Delete portfolios owned BY the user (this will cascade to feedbacks and notifications on those portfolios)
+    // 3. Delete portfolios owned BY the user (this will cascade to feedbacks and notifications on
+    // those portfolios)
     portfolioRepository.deleteAllByUser(user);
 
     // 4. Delete profile picture from Cloudinary
