@@ -57,7 +57,7 @@ public class NotificationService {
 
   @Transactional
   public void markAllAsRead(User user) {
-    notificationRepository.markAllAsReadForRecipient(user);
+    notificationRepository.markAllAsReadForRecipient(user.getId());
   }
 
   @Transactional
@@ -79,9 +79,12 @@ public class NotificationService {
   private NotificationResponse mapToResponse(Notification notification) {
     return NotificationResponse.builder()
         .id(notification.getId())
-        .senderUsername(notification.getSender().getUsername())
-        .senderFullName(notification.getSender().getFullName())
-        .portfolioId(notification.getPortfolio().getId())
+        .senderUsername(
+            notification.getSender() != null ? notification.getSender().getUsername() : "System")
+        .senderFullName(
+            notification.getSender() != null ? notification.getSender().getFullName() : "System")
+        .portfolioId(
+            notification.getPortfolio() != null ? notification.getPortfolio().getId() : null)
         .type(notification.getType())
         .isRead(notification.isRead())
         .createdAt(notification.getCreatedAt())
