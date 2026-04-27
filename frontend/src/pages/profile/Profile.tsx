@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { userService } from '../../services/userService.ts';
 import type { UserProfileResponse } from '../../types/user';
 import ProfileSidebar from '../../components/layout/ProfileSidebar';
@@ -26,6 +27,8 @@ export default function Profile() {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProfile();
@@ -95,26 +98,32 @@ export default function Profile() {
   };
 
   const handleDeleteAccount = async () => {
-    setUpdating(true);
+    setIsDeleting(true);
     try {
       await userService.deleteAccount();
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      toast.success('Account deleted successfully.');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1000);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to delete account.');
+      setIsDeleting(false);
       setShowDeleteModal(false);
-    } finally {
-      setUpdating(false);
     }
   };
 
-  if (loading) return (
+  if (loading || isDeleting) return (
     <div className="container-fluid profile-page-bg">
       <div className="row g-0">
         <ProfileSidebar />
         <div className="col-lg-10 col-md-11 p-4 text-center py-5">
-          <div className="spinner-border text-primary" />
+          <div className="py-5 mt-5">
+            <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }} />
+            <h4 className="fw-bold">{isDeleting ? 'Deleting your account...' : 'Loading profile...'}</h4>
+            <p className="text-muted">Please wait a moment.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -359,8 +368,14 @@ export default function Profile() {
                 </div>
               </div>
               <div className="modal-footer border-0 p-3">
-                <button type="button" className="btn btn-light" onClick={() => setShowDeleteModal(false)}>Cancel</button>
-                <button type="button" className="btn btn-danger" onClick={handleDeleteAccount}>Yes, Delete My Account</button>
+                <button type="button" className="btn btn-light" onClick={() => setShowDeleteModal(false)} disabled={updating}>Cancel</button>
+                <button type="button" className="btn btn-danger" onClick={handleDeleteAccount} disabled={updating}>
+                  {updating ? (
+                    <><span className="spinner-border spinner-border-sm me-2"></span>Deleting...</>
+                  ) : (
+                    'Yes, Delete My Account'
+                  )}
+                </button>
               </div>
             </div>
           </div>
