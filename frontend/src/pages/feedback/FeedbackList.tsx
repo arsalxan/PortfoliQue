@@ -5,9 +5,11 @@ import { feedbackService } from '../../services/feedbackService.ts';
 import type { Portfolio } from '../../types/portfolio.ts';
 import type { Feedback } from '../../types/feedback.ts';
 import PortfolioCard from '../../components/portfolio/PortfolioCard.tsx';
+import { useAuth } from '../../context/AuthContext.tsx';
 
 export default function FeedbackList() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,12 +94,14 @@ export default function FeedbackList() {
               <p className="text-muted small mb-0">What the community thinks about this portfolio</p>
             </div>
             <div className="d-flex align-items-center gap-3">
-              <Link
-                to={`/portfolios/${id}/feedbacks/new`}
-                className="btn btn-primary btn-sm rounded-pill px-4 shadow-sm fw-bold"
-              >
-                <i className="fas fa-pen-nib me-2"></i> Give Feedback
-              </Link>
+              {user && portfolio && user.id !== portfolio.userId && (
+                <Link
+                  to={`/portfolios/${id}/feedbacks/new`}
+                  className="btn btn-primary btn-sm rounded-pill px-4 shadow-sm fw-bold"
+                >
+                  <i className="fas fa-pen-nib me-2"></i> Give Feedback
+                </Link>
+              )}
               <span className="badge rounded-pill border fw-normal px-3 py-2"
                 style={{ backgroundColor: 'rgba(37,99,235,0.08)', color: 'var(--primary)', fontSize: '0.85rem' }}>
                 {portfolio?.feedbackCount || 0} reviews
