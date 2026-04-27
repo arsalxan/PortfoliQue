@@ -24,6 +24,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final PortfolioRepository portfolioRepository;
   private final FeedbackRepository feedbackRepository;
+  private final NotificationRepository notificationRepository;
   private final PasswordEncoder passwordEncoder;
   private final CloudinaryService cloudinaryService;
 
@@ -92,7 +93,17 @@ public class UserService {
 
   @Transactional
   public void deleteAccount(User user) throws IOException {
-    // Delete profile picture from Cloudinary
+    // 1. Delete notifications (where user is recipient OR sender)
+    notificationRepository.deleteAllByRecipient(user);
+    notificationRepository.deleteAllBySender(user);
+
+    // 2. Delete feedbacks given BY the user
+    feedbackRepository.deleteAllByUser(user);
+
+    // 3. Delete portfolios owned BY the user (this will cascade to feedbacks and notifications on those portfolios)
+    portfolioRepository.deleteAllByUser(user);
+
+    // 4. Delete profile picture from Cloudinary
     if (user.getProfilePicture() != null) {
       String publicId = cloudinaryService.extractPublicId(user.getProfilePicture());
       if (publicId != null) {
@@ -100,8 +111,7 @@ public class UserService {
       }
     }
 
-    // Repositories handle cascading deletes if configured, otherwise manual cleanup needed
-    // Assuming portfolios and feedbacks have CascadeType.ALL or are handled by DB constraints
+    // 5. Finally, delete the user
     userRepository.delete(user);
   }
 }

@@ -29,4 +29,6 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
       value = "SELECT p FROM Portfolio p LEFT JOIN p.feedbacks f GROUP BY p ORDER BY COUNT(f) ASC",
       countQuery = "SELECT COUNT(p) FROM Portfolio p")
   Page<Portfolio> findAllSortedByFewestFeedbacks(Pageable pageable);
+
+  void deleteAllByUser(User user);
 }

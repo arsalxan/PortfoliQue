@@ -33,4 +33,6 @@ public interface FeedbackRepository extends JpaRepository<Feedback, Long> {
           + "LOWER(f.additional) LIKE LOWER(CONCAT('%', :content, '%')))")
   Page<Feedback> searchByFilters(
       @Param("username") String username, @Param("content") String content, Pageable pageable);
+
+  void deleteAllByUser(User user);
 }

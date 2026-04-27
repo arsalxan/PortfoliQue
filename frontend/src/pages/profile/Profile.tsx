@@ -95,12 +95,17 @@ export default function Profile() {
   };
 
   const handleDeleteAccount = async () => {
+    setUpdating(true);
     try {
       await userService.deleteAccount();
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       window.location.href = '/login';
-    } catch (err) {
-      setError('Failed to delete account.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to delete account.');
+      setShowDeleteModal(false);
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -155,6 +160,7 @@ export default function Profile() {
           {/* ── OVERVIEW TAB ─────────────────────────────────────────────── */}
           {activeTab === 'overview' && (
             <div className="row g-4">
+              {error && <div className="col-12"><div className="alert alert-danger mb-0">{error}</div></div>}
               {/* Avatar + stats card */}
               <div className="col-lg-4">
                 <div className="card border-0 shadow-sm text-center py-5 h-100">
