@@ -29,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 public class AdminServiceTest {
@@ -109,7 +110,7 @@ public class AdminServiceTest {
   @Test
   void testDeleteUser_SelfDeleteError() {
     assertThatThrownBy(() -> adminService.deleteUser(1L, 1L))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("Cannot delete your own account");
   }
 

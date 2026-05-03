@@ -92,7 +92,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error").value("Username already exists"));
+        .andExpect(jsonPath("$.message").value("Username already exists"));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
         .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.error").value("Invalid credentials"));
+        .andExpect(jsonPath("$.message").value("Invalid credentials"));
   }
 
   @Test
@@ -157,6 +157,6 @@ public class AuthControllerTest {
     mockMvc
         .perform(get("/api/v1/auth/verify-email/invalid-token"))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error").value("Invalid or expired token"));
+        .andExpect(jsonPath("$.message").value("Invalid or expired token"));
   }
 }

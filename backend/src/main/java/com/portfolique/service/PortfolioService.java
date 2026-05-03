@@ -45,7 +45,7 @@ public class PortfolioService {
   }
 
   @CacheEvict(
-      value = {"portfolios", "userPortfolios", "userProfiles"},
+      value = {"portfolios", "userPortfolios", "userProfiles", "portfolioDetails"},
       allEntries = true)
   @Transactional
   public PortfolioResponse createPortfolio(
@@ -73,7 +73,7 @@ public class PortfolioService {
   }
 
   @CacheEvict(
-      value = {"portfolios", "userPortfolios", "portfolioDetails"},
+      value = {"portfolios", "userPortfolios", "portfolioDetails", "userProfiles"},
       allEntries = true)
   @Transactional
   public PortfolioResponse updatePortfolio(
