@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { userService } from '../../services/userService.ts';
 import type { UserProfileResponse } from '../../types/user';
 import ProfileSidebar from '../../components/layout/ProfileSidebar';
+import Skeleton from '../../components/common/Skeleton';
 
 type Tab = 'overview' | 'edit';
 
@@ -119,11 +120,44 @@ export default function Profile() {
     <div className="container-fluid profile-page-bg">
       <div className="row g-0">
         <ProfileSidebar />
-        <div className="col-lg-10 col-md-11 p-4 text-center py-5">
-          <div className="py-5 mt-5">
-            <div className="spinner-border text-primary mb-3" style={{ width: '3rem', height: '3rem' }} />
-            <h4 className="fw-bold">{isDeleting ? 'Deleting your account...' : 'Loading profile...'}</h4>
-            <p className="text-muted">Please wait a moment.</p>
+        <div className="col-lg-10 col-md-11 p-4 mb-5 fade-in">
+          {/* Skeleton Header */}
+          <div className="mb-4">
+            <Skeleton width="200px" height="32px" className="mb-2" />
+            <Skeleton width="300px" height="14px" />
+          </div>
+
+          <div className="row g-4">
+            <div className="col-lg-4">
+              <div className="card border-0 shadow-sm text-center py-5 h-100">
+                <div className="card-body d-flex flex-column align-items-center">
+                  <Skeleton circle width="130px" height="130px" className="mb-3" />
+                  <Skeleton width="150px" height="24px" className="mb-2" />
+                  <Skeleton width="100px" height="14px" className="mb-4" />
+                  <div className="d-flex gap-3 mb-4 w-100">
+                    <Skeleton height="80px" className="flex-fill" />
+                    <Skeleton height="80px" className="flex-fill" />
+                  </div>
+                  <Skeleton height="45px" className="w-100 mb-2" />
+                  <Skeleton height="45px" className="w-100" />
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-8">
+              <div className="card border-0 shadow-sm mb-4">
+                <div className="card-body p-4">
+                  <Skeleton width="150px" height="24px" className="mb-4" />
+                  <div className="row g-3">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="col-sm-6">
+                        <Skeleton width="80px" height="12px" className="mb-2" />
+                        <Skeleton height="45px" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
