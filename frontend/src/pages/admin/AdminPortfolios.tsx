@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
 import type { Portfolio } from '../../types/portfolio';
 import AdminSidebar from '../../components/layout/AdminSidebar';
+import Skeleton from '../../components/common/Skeleton';
 
 export default function AdminPortfolios() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
@@ -77,7 +78,15 @@ export default function AdminPortfolios() {
                 </thead>
                 <tbody>
                   {loading && page === 0 ? (
-                    <tr><td colSpan={5} className="text-center py-5"><div className="spinner-border text-primary text-sm"></div></td></tr>
+                    [...Array(5)].map((_, i) => (
+                      <tr key={i}>
+                        <td className="px-4 py-3"><Skeleton height="20px" width="80%" /><Skeleton height="12px" width="50%" className="mt-2" /></td>
+                        <td className="py-3"><Skeleton height="20px" width="60%" /><Skeleton height="12px" width="40%" className="mt-2" /></td>
+                        <td className="py-3"><center><Skeleton circle width="24px" height="24px" /></center></td>
+                        <td className="py-3"><Skeleton height="15px" width="70%" /></td>
+                        <td className="px-4 py-3 text-end"><Skeleton width="32px" height="32px" className="ms-auto" /></td>
+                      </tr>
+                    ))
                   ) : portfolios.length === 0 ? (
                     <tr><td colSpan={5} className="text-center py-5 text-muted">No portfolios found matching your search.</td></tr>
                   ) : (

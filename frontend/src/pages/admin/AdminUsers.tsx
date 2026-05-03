@@ -3,6 +3,7 @@ import { adminService } from '../../services/adminService';
 import type { UserResponse } from '../../types/user';
 import AdminSidebar from '../../components/layout/AdminSidebar';
 import { useAuth } from '../../context/AuthContext';
+import Skeleton from '../../components/common/Skeleton';
 
 export default function AdminUsers() {
   const { user: currentUser } = useAuth();
@@ -87,7 +88,23 @@ export default function AdminUsers() {
                 </thead>
                 <tbody>
                   {loading && page === 0 ? (
-                    <tr><td colSpan={5} className="text-center py-5"><div className="spinner-border text-primary text-sm"></div></td></tr>
+                    [...Array(5)].map((_, i) => (
+                      <tr key={i}>
+                        <td className="px-4 py-3">
+                          <div className="d-flex align-items-center">
+                            <Skeleton circle width="40px" height="40px" className="me-3" />
+                            <div>
+                              <Skeleton width="120px" height="18px" />
+                              <Skeleton width="80px" height="12px" className="mt-2" />
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3"><Skeleton width="150px" height="15px" /></td>
+                        <td className="py-3"><Skeleton width="60px" height="20px" /></td>
+                        <td className="py-3"><Skeleton width="60px" height="20px" /></td>
+                        <td className="px-4 py-3 text-end"><Skeleton width="32px" height="32px" className="ms-auto" /></td>
+                      </tr>
+                    ))
                   ) : users.length === 0 ? (
                     <tr><td colSpan={5} className="text-center py-5 text-muted">No users found match your search.</td></tr>
                   ) : (

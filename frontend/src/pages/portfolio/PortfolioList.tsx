@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { portfolioService } from '../../services/portfolioService.ts';
 import type { Portfolio, PortfolioPage } from '../../types/portfolio.ts';
 import PortfolioCard from '../../components/portfolio/PortfolioCard.tsx';
-import LoadingSpinner from '../../components/common/LoadingSpinner.tsx';
+import PortfolioCardSkeleton from '../../components/common/PortfolioCardSkeleton.tsx';
 
 export default function PortfolioList() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
@@ -73,7 +73,13 @@ export default function PortfolioList() {
       </div>
 
       {loading ? (
-        <LoadingSpinner />
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="col">
+              <PortfolioCardSkeleton />
+            </div>
+          ))}
+        </div>
       ) : error ? (
         <div className="alert alert-danger text-center shadow-sm" role="alert">
           <i className="fas fa-exclamation-triangle me-2"></i> {error}

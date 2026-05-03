@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { portfolioService } from '../../services/portfolioService';
 import type { Portfolio } from '../../types/portfolio';
 import PortfolioCard from '../../components/portfolio/PortfolioCard';
+import PortfolioCardSkeleton from '../../components/common/PortfolioCardSkeleton';
 import ProfileSidebar from '../../components/layout/ProfileSidebar';
 import ConfirmModal from '../../components/common/ConfirmModal';
 import toast from 'react-hot-toast';
@@ -72,7 +73,13 @@ export default function MyPortfolios() {
           {error && <div className="alert alert-danger">{error}</div>}
 
           {loading ? (
-            <div className="text-center py-5"><div className="spinner-border text-primary"></div></div>
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="col">
+                  <PortfolioCardSkeleton />
+                </div>
+              ))}
+            </div>
           ) : portfolios.length === 0 ? (
             <div className="text-center py-5 bg-white rounded shadow-sm">
               <i className="fas fa-briefcase fa-4x mb-3 text-muted opacity-25"></i>

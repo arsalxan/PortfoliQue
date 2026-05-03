@@ -5,6 +5,8 @@ import { feedbackService } from '../../services/feedbackService.ts';
 import type { Portfolio } from '../../types/portfolio.ts';
 import type { Feedback } from '../../types/feedback.ts';
 import PortfolioCard from '../../components/portfolio/PortfolioCard.tsx';
+import PortfolioCardSkeleton from '../../components/common/PortfolioCardSkeleton.tsx';
+import FeedbackCardSkeleton from '../../components/common/FeedbackCardSkeleton.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
 
 export default function FeedbackList() {
@@ -53,9 +55,27 @@ export default function FeedbackList() {
 
   if (loading && !portfolio) {
     return (
-      <div className="container mt-5 text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+      <div className="container-fluid px-4 py-4 fade-in" style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div className="btn btn-sm btn-outline-secondary mb-4 disabled" style={{ opacity: 0.5 }}>
+          <i className="fas fa-arrow-left me-2"></i> Back to Portfolios
+        </div>
+        <div className="row g-4">
+          <div className="col-lg-4">
+            <div className="card border-0 shadow-sm p-3">
+              <PortfolioCardSkeleton />
+            </div>
+          </div>
+          <div className="col-lg-8">
+            <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+              <div>
+                <div className="skeleton mb-2" style={{ width: '200px', height: '28px' }}></div>
+                <div className="skeleton" style={{ width: '300px', height: '14px' }}></div>
+              </div>
+            </div>
+            <div className="d-flex flex-column gap-3">
+              {[...Array(3)].map((_, i) => <FeedbackCardSkeleton key={i} />)}
+            </div>
+          </div>
         </div>
       </div>
     );
