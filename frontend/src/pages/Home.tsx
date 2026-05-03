@@ -36,7 +36,7 @@ export default function Home() {
             <div className="card shadow-lg border-0 overflow-hidden rounded-4">
               <div className="position-relative">
                 <img 
-                  src="/images/professor-portfolio.png" 
+                  src="/images/professor-portfolio.jpg" 
                   alt="Prof. Dr. Mohammad Ubaidullah Bokhari Portfolio" 
                   className="img-fluid w-100" 
                   style={{ objectFit: 'cover', maxHeight: '320px' }}

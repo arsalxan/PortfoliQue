@@ -10,7 +10,7 @@ export default function FeaturedPortfolio() {
     title: "Prof. Dr. Mohammad Ubaidullah Bokhari",
     description: "Personal academic portfolio showcasing decades of research, publications, and visionary leadership in Computer Science.",
     url: "https://mu-bokhari.vercel.app/",
-    imageUrl: "/images/professor-portfolio.png",
+    imageUrl: "/images/professor-portfolio.jpg",
     username: "mu-bokhari",
     fullName: "Prof. Dr. Mohammad Ubaidullah Bokhari",
     category: "Academic",
