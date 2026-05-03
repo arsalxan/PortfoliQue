@@ -90,7 +90,9 @@ public class UserService {
     return getProfile(saved);
   }
 
-  @CacheEvict(value = "userProfiles", key = "#user.id")
+  @CacheEvict(
+      value = {"userProfiles", "portfolios", "userPortfolios", "portfolioDetails", "feedbacks"},
+      allEntries = true)
   @Transactional
   public void deleteAccount(User user) throws IOException {
     // Delete profile picture from Cloudinary if present

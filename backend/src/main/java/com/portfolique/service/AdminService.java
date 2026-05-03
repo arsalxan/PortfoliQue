@@ -11,6 +11,7 @@ import com.portfolique.repository.FeedbackRepository;
 import com.portfolique.repository.PortfolioRepository;
 import com.portfolique.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,9 @@ public class AdminService {
     return users.map(this::mapToUserResponse);
   }
 
+  @CacheEvict(
+      value = {"userProfiles", "portfolios", "userPortfolios", "portfolioDetails", "feedbacks"},
+      allEntries = true)
   @Transactional
   public void deleteUser(Long userId, Long currentAdminId) {
     if (userId.equals(currentAdminId)) {
@@ -68,6 +72,9 @@ public class AdminService {
     return portfolios.map(this::mapToPortfolioResponse);
   }
 
+  @CacheEvict(
+      value = {"portfolios", "userPortfolios", "portfolioDetails", "userProfiles", "feedbacks"},
+      allEntries = true)
   @Transactional
   public void deletePortfolio(Long portfolioId) {
     Portfolio portfolio =
@@ -83,6 +90,9 @@ public class AdminService {
     return feedbacks.map(this::mapToFeedbackResponse);
   }
 
+  @CacheEvict(
+      value = {"feedbacks", "userFeedbacks", "portfolios", "portfolioDetails", "userProfiles"},
+      allEntries = true)
   @Transactional
   public void deleteFeedback(Long feedbackId) {
     Feedback feedback =

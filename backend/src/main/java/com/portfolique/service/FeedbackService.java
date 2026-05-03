@@ -48,7 +48,7 @@ public class FeedbackService {
   }
 
   @CacheEvict(
-      value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles"},
+      value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles", "portfolioDetails"},
       allEntries = true)
   @Transactional
   public FeedbackResponse createFeedback(Long portfolioId, FeedbackRequest req, User currentUser) {
@@ -106,7 +106,7 @@ public class FeedbackService {
   }
 
   @CacheEvict(
-      value = {"feedbacks", "userFeedbacks"},
+      value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles", "portfolioDetails"},
       allEntries = true)
   @Transactional
   public FeedbackResponse updateFeedback(Long feedbackId, FeedbackRequest req, User currentUser) {
@@ -134,7 +134,7 @@ public class FeedbackService {
   }
 
   @CacheEvict(
-      value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles"},
+      value = {"feedbacks", "userFeedbacks", "portfolios", "userProfiles", "portfolioDetails"},
       allEntries = true)
   @Transactional
   public void deleteFeedback(Long feedbackId, User currentUser) {
