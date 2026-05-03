@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { portfolioService } from '../../services/portfolioService.ts';
 import type { Portfolio } from '../../types/portfolio.ts';
 import PortfolioCard from '../../components/portfolio/PortfolioCard.tsx';
+import PortfolioCardSkeleton from '../../components/common/PortfolioCardSkeleton.tsx';
 
 export default function PortfolioSearch() {
   const [searchParams] = useSearchParams();
@@ -57,10 +58,10 @@ export default function PortfolioSearch() {
       </div>
 
       {loading ? (
-        <div className="text-center py-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="col"><PortfolioCardSkeleton /></div>
+          ))}
         </div>
       ) : error ? (
         <div className="alert alert-danger text-center shadow-sm" role="alert">

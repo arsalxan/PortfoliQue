@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { notificationService } from '../services/notificationService';
 import type { Notification } from '../types/notification';
 import { formatDistanceToNow } from 'date-fns';
+import Skeleton from '../components/common/Skeleton';
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -48,7 +49,31 @@ export default function Notifications() {
     }
   };
 
-  if (loading && page === 0) return <div className="container mt-5 text-center"><div className="spinner-border text-primary"></div></div>;
+  if (loading && page === 0) {
+    return (
+      <div className="container mt-5 px-4 mb-5 fade-in">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <Skeleton width="200px" height="32px" className="mb-2" />
+            <Skeleton width="300px" height="14px" />
+          </div>
+        </div>
+        <div className="card border-0 shadow-sm">
+          <div className="list-group list-group-flush rounded overflow-hidden">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="list-group-item p-4 d-flex justify-content-between align-items-center">
+                <div className="flex-grow-1">
+                  <Skeleton width="40%" height="20px" className="mb-2" />
+                  <Skeleton width="60%" height="14px" />
+                </div>
+                <Skeleton width="80px" height="24px" className="ms-3" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-5 px-4 mb-5">

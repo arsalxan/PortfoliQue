@@ -7,7 +7,9 @@ import type { Portfolio } from '../types/portfolio.ts';
 import type { Feedback } from '../types/feedback.ts';
 import PortfolioCard from '../components/portfolio/PortfolioCard.tsx';
 import FeedbackSummaryCard from '../components/feedback/FeedbackSummaryCard.tsx';
-import LoadingSpinner from '../components/common/LoadingSpinner.tsx';
+import PortfolioCardSkeleton from '../components/common/PortfolioCardSkeleton.tsx';
+import FeedbackSummaryCardSkeleton from '../components/common/FeedbackSummaryCardSkeleton.tsx';
+import Skeleton from '../components/common/Skeleton.tsx';
 import ProfileSidebar from '../components/layout/ProfileSidebar.tsx';
 import toast from 'react-hot-toast';
 
@@ -68,8 +70,38 @@ export default function Dashboard() {
       <div className="container-fluid profile-page-bg">
         <div className="row g-0">
           <ProfileSidebar />
-          <div className="col-lg-10 col-md-11 p-4 text-center py-5">
-            <LoadingSpinner fullPage />
+          <div className="col-lg-10 col-md-11 p-4 mb-5 fade-in">
+            {/* Skeleton Welcome banner */}
+            <div className="mb-4">
+              <div className="bg-white p-5 rounded-3 shadow-sm border-0 position-relative">
+                <Skeleton height="40px" width="60%" className="mb-3" />
+                <Skeleton height="20px" width="40%" />
+              </div>
+            </div>
+
+            {/* Skeleton Portfolios Section */}
+            <section className="mb-5">
+              <div className="d-flex justify-content-between align-items-end mb-4">
+                <div><Skeleton height="24px" width="200px" /></div>
+              </div>
+              <div className="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="col"><PortfolioCardSkeleton /></div>
+                ))}
+              </div>
+            </section>
+
+            {/* Skeleton Feedbacks Section */}
+            <section>
+              <div className="d-flex justify-content-between align-items-end mb-4">
+                <div><Skeleton height="24px" width="200px" /></div>
+              </div>
+              <div className="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="col"><FeedbackSummaryCardSkeleton /></div>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </div>

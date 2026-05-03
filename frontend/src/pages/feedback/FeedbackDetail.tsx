@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { feedbackService } from '../../services/feedbackService.ts';
 import { useAuth } from '../../context/AuthContext.tsx';
 import type { Feedback } from '../../types/feedback.ts';
+import Skeleton from '../../components/common/Skeleton';
 
 export default function FeedbackDetail() {
   const { portfolioId, feedbackId } = useParams<{ portfolioId: string; feedbackId: string }>();
@@ -33,7 +34,44 @@ export default function FeedbackDetail() {
   };
 
   if (loading) {
-    return <div className="container mt-5 text-center py-5"><div className="spinner-border text-primary"></div></div>;
+    return (
+      <div className="container py-5 fade-in">
+        <div className="row justify-content-center">
+          <div className="col-lg-8">
+            <div className="card shadow border-0 rounded-3 overflow-hidden">
+              <div className="card-header bg-primary py-3 d-flex justify-content-between align-items-center">
+                <div className="skeleton" style={{ width: '150px', height: '24px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
+                <div className="skeleton" style={{ width: '60px', height: '30px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
+              </div>
+              <div className="card-body p-0">
+                <div className="p-4 bg-light border-bottom">
+                  <Skeleton width="60%" height="24px" className="mb-2" />
+                  <Skeleton width="30%" height="14px" />
+                </div>
+                <div className="p-4">
+                  <div className="d-flex align-items-center mb-4">
+                    <Skeleton circle width="50px" height="50px" className="me-3" />
+                    <div>
+                      <Skeleton width="120px" height="20px" className="mb-2" />
+                      <Skeleton width="180px" height="14px" />
+                    </div>
+                  </div>
+                  <div className="border rounded">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="p-4 border-bottom">
+                        <Skeleton width="100px" height="18px" className="mb-3" />
+                        <Skeleton height="14px" className="mb-2" />
+                        <Skeleton height="14px" width="80%" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (error || !feedback) {
