@@ -17,6 +17,7 @@ import PortfolioCreate from './pages/portfolio/PortfolioCreate.tsx';
 import PortfolioEdit from './pages/portfolio/PortfolioEdit.tsx';
 import PortfolioSearch from './pages/portfolio/PortfolioSearch.tsx';
 import AiReview from './pages/portfolio/AiReview.tsx';
+import FeaturedPortfolio from './pages/portfolio/FeaturedPortfolio.tsx';
 
 // Feedback Pages
 import FeedbackList from './pages/feedback/FeedbackList.tsx';
@@ -62,6 +63,7 @@ function App() {
             {/* Portfolio routes (browsing is public, creating requires auth) */}
             <Route path="/portfolios" element={<PortfolioList />} />
             <Route path="/portfolios/search" element={<PortfolioSearch />} />
+            <Route path="/portfolios/featured/bokhari" element={<FeaturedPortfolio />} />
             <Route path="/portfolios/:id/feedbacks" element={<FeedbackList />} />
 
             {/* Protected routes */}
