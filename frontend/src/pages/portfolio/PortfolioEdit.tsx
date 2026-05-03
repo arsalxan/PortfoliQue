@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { portfolioService } from '../../services/portfolioService.ts';
 import { useAuth } from '../../context/AuthContext.tsx';
 import toast from 'react-hot-toast';
+import Skeleton from '../../components/common/Skeleton.tsx';
 
 export default function PortfolioEdit() {
   const { id } = useParams<{ id: string }>();
@@ -92,23 +93,46 @@ export default function PortfolioEdit() {
 
   if (loading) {
     return (
-      <div className="container mt-5 text-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
+      <div className="container-fluid py-5 bg-light-subtle min-vh-100">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-xl-10">
+              <div className="text-center mb-4">
+                <Skeleton width="200px" height="32px" className="mx-auto mb-2" />
+                <Skeleton width="300px" height="14px" className="mx-auto" />
+              </div>
+              <div className="card border-0 shadow-lg rounded-4 overflow-hidden bg-white p-5">
+                <div className="row g-4">
+                  <div className="col-lg-6">
+                    <Skeleton height="80px" className="mb-4" />
+                    <Skeleton height="200px" />
+                  </div>
+                  <div className="col-lg-6">
+                    <Skeleton height="80px" className="mb-4" />
+                    <Skeleton height="200px" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mt-5 mb-5">
-      <div className="row justify-content-center">
-        <div className="col-md-8 col-lg-6">
-          <div className="card shadow-lg border-0 rounded-3 overflow-hidden">
-            <div className="card-header bg-warning py-3 text-center">
-              <h2 className="h4 mb-0 fw-bold text-dark">Edit Your Portfolio</h2>
+    <div className="container-fluid py-5 bg-light-subtle min-vh-100">
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-xl-10">
+            
+            {/* Compact Header */}
+            <div className="text-center mb-4">
+              <h1 className="h3 fw-bold text-dark mb-1">Edit Your Portfolio</h1>
+              <p className="text-muted small">Update your project details and showcase your progress.</p>
             </div>
-            <div className="card-body p-4 p-md-5">
+
+            <div className="card border-0 shadow-lg rounded-4 overflow-hidden bg-white p-4 p-md-5">
               {error && (
                 <div className="alert alert-danger shadow-sm mb-4" role="alert">
                   <i className="fas fa-exclamation-circle me-2"></i> {error}
@@ -116,118 +140,112 @@ export default function PortfolioEdit() {
               )}
 
               <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                  <label htmlFor="url" className="form-label text-primary fw-bold">Portfolio URL *</label>
-                  <div className="input-group">
-                    <span className="input-group-text bg-light border-end-0">
-                      <i className="fas fa-link text-muted"></i>
-                    </span>
-                    <input
-                      type="url"
-                      className="form-control border-start-0"
-                      id="url"
-                      placeholder="https://yourportfolio.com"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="description" className="form-label text-primary fw-bold">Description</label>
-                  <textarea
-                    className="form-control"
-                    id="description"
-                    rows={4}
-                    placeholder="Describe your portfolio..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  ></textarea>
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="gitRepo" className="form-label text-primary fw-bold">Git Repository (Optional)</label>
-                  <div className="input-group">
-                    <span className="input-group-text bg-light border-end-0">
-                      <i className="fab fa-github text-muted"></i>
-                    </span>
-                    <input
-                      type="url"
-                      className="form-control border-start-0"
-                      id="gitRepo"
-                      placeholder="https://github.com/username/repo"
-                      value={gitRepo}
-                      onChange={(e) => setGitRepo(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <label htmlFor="screenshot" className="form-label text-primary fw-bold">Screenshot</label>
-                  <input
-                    type="file"
-                    className="form-control"
-                    id="screenshot"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
-                  
-                  {screenshotPreview ? (
-                    <div className="mt-3">
-                      <p className="small text-muted mb-1">New screenshot preview:</p>
-                      <div className="position-relative">
-                        <img 
-                          src={screenshotPreview} 
-                          alt="New Preview" 
-                          className="img-fluid rounded border shadow-sm" 
-                          style={{ maxHeight: '200px', width: '100%', objectFit: 'cover' }}
+                <div className="row g-4">
+                  {/* Left Column: Core Details */}
+                  <div className="col-lg-6 border-end-lg">
+                    <div className="mb-4">
+                      <label className="form-label fw-bold small text-primary text-uppercase">Portfolio Website URL *</label>
+                      <div className="input-group border rounded-3 overflow-hidden">
+                        <span className="input-group-text bg-white border-0">
+                          <i className="fas fa-globe text-muted"></i>
+                        </span>
+                        <input
+                          type="url"
+                          className="form-control border-0 shadow-none fs-6"
+                          placeholder="https://yourname.github.io"
+                          value={url}
+                          onChange={(e) => setUrl(e.target.value)}
+                          required
                         />
-                        <button 
-                          type="button" 
-                          className="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
-                          onClick={() => { setNewScreenshot(null); setScreenshotPreview(null); }}
-                        >
-                          <i className="fas fa-times"></i>
-                        </button>
                       </div>
                     </div>
-                  ) : currentScreenshot ? (
-                    <div className="mt-3">
-                      <p className="small text-muted mb-1">Current screenshot:</p>
-                      <img 
-                        src={currentScreenshot} 
-                        alt="Current" 
-                        className="img-fluid rounded border opacity-75" 
-                        style={{ maxHeight: '150px', width: '100%', objectFit: 'cover' }}
-                      />
+
+                    <div className="mb-0">
+                      <label className="form-label fw-bold small text-primary text-uppercase">Project Description</label>
+                      <textarea
+                        className="form-control border-1 rounded-3 p-3"
+                        rows={6}
+                        placeholder="Explain your tech stack, goals, and specific areas where you need feedback..."
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        style={{ fontSize: '0.9rem' }}
+                      ></textarea>
                     </div>
-                  ) : null}
+                  </div>
+
+                  {/* Right Column: Assets & Links */}
+                  <div className="col-lg-6">
+                    <div className="mb-4">
+                      <label className="form-label fw-bold small text-primary text-uppercase">Git Repository (Optional)</label>
+                      <div className="input-group border rounded-3 overflow-hidden">
+                        <span className="input-group-text bg-white border-0">
+                          <i className="fab fa-github text-muted"></i>
+                        </span>
+                        <input
+                          type="url"
+                          className="form-control border-0 shadow-none fs-6"
+                          placeholder="https://github.com/user/project"
+                          value={gitRepo}
+                          onChange={(e) => setGitRepo(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mb-0">
+                      <label className="form-label fw-bold small text-primary text-uppercase">Cover Screenshot</label>
+                      <div 
+                        className="upload-drop-zone border-dashed border-2 rounded-3 p-4 text-center bg-light cursor-pointer h-100 d-flex flex-column justify-content-center align-items-center"
+                        onClick={() => document.getElementById('screenshot')?.click()}
+                        style={{ cursor: 'pointer', border: '2px dashed #dee2e6', minHeight: '160px' }}
+                      >
+                        {screenshotPreview ? (
+                          <div className="position-relative w-100">
+                            <img src={screenshotPreview} alt="Preview" className="img-fluid rounded shadow-sm" style={{ maxHeight: '140px' }} />
+                            <div className="mt-2 small text-primary fw-bold">Click to change</div>
+                          </div>
+                        ) : currentScreenshot ? (
+                          <div className="position-relative w-100">
+                            <img src={currentScreenshot} alt="Current" className="img-fluid rounded shadow-sm" style={{ maxHeight: '140px' }} />
+                            <div className="mt-2 small text-muted">Click to update screenshot</div>
+                          </div>
+                        ) : (
+                          <div className="py-2">
+                            <i className="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                            <p className="mb-0 text-muted small">Click to upload new</p>
+                          </div>
+                        )}
+                        <input
+                          type="file"
+                          id="screenshot"
+                          className="d-none"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="d-grid gap-2 mt-5">
+                {/* Footer Actions */}
+                <div className="d-flex gap-3 justify-content-end align-items-center mt-5 pt-4 border-top">
+                  <button
+                    type="button"
+                    className="btn btn-light px-4 rounded-pill fw-semibold"
+                    onClick={() => navigate('/portfolios')}
+                    disabled={isSubmitting}
+                  >
+                    Cancel
+                  </button>
                   <button
                     type="submit"
-                    className="btn btn-warning btn-lg fw-bold py-3 shadow-sm text-dark"
+                    className="btn btn-warning px-5 rounded-pill fw-bold shadow-sm text-dark"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                        Updating...
-                      </>
+                      <><span className="spinner-border spinner-border-sm me-2"></span>Updating...</>
                     ) : (
-                      <>
-                        <i className="fas fa-save me-2"></i> Update Portfolio
-                      </>
+                      <><i className="fas fa-save me-2"></i>Update Portfolio</>
                     )}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-link text-muted mt-2"
-                    onClick={() => navigate('/portfolios')}
-                  >
-                    Cancel
                   </button>
                 </div>
               </form>
