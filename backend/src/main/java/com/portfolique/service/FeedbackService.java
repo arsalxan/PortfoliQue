@@ -76,7 +76,7 @@ public class FeedbackService {
             .build();
 
     Feedback saved = feedbackRepository.save(feedback);
-    notificationService.createFeedbackNotification(currentUser, portfolio);
+    notificationService.createFeedbackNotification(currentUser, portfolio, saved);
 
     return mapToResponse(saved);
   }

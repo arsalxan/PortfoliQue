@@ -4,7 +4,6 @@ import com.portfolique.dto.request.UpdateProfileRequest;
 import com.portfolique.dto.response.UserProfileResponse;
 import com.portfolique.entity.User;
 import com.portfolique.repository.FeedbackRepository;
-import com.portfolique.repository.NotificationRepository;
 import com.portfolique.repository.PortfolioRepository;
 import com.portfolique.repository.UserRepository;
 import java.io.IOException;
@@ -25,7 +24,6 @@ public class UserService {
   private final UserRepository userRepository;
   private final PortfolioRepository portfolioRepository;
   private final FeedbackRepository feedbackRepository;
-  private final NotificationRepository notificationRepository;
   private final PasswordEncoder passwordEncoder;
   private final CloudinaryService cloudinaryService;
 
@@ -92,28 +90,18 @@ public class UserService {
     return getProfile(saved);
   }
 
+  @CacheEvict(value = "userProfiles", key = "#user.id")
   @Transactional
   public void deleteAccount(User user) throws IOException {
-    // 1. Delete notifications (where user is recipient OR sender)
-    notificationRepository.deleteAllByRecipient(user);
-    notificationRepository.deleteAllBySender(user);
-
-    // 2. Delete feedbacks given BY the user
-    feedbackRepository.deleteAllByUser(user);
-
-    // 3. Delete portfolios owned BY the user (this will cascade to feedbacks and notifications on
-    // those portfolios)
-    portfolioRepository.deleteAllByUser(user);
-
-    // 4. Delete profile picture from Cloudinary
+    // Delete profile picture from Cloudinary if present
     if (user.getProfilePicture() != null) {
       String publicId = cloudinaryService.extractPublicId(user.getProfilePicture());
       if (publicId != null) {
         cloudinaryService.deleteImage(publicId);
       }
     }
-
-    // 5. Finally, delete the user
+    // JPA cascades (User → portfolios, feedbacksGiven, notificationsReceived, notificationsSent)
+    // automatically delete all related data in the correct order.
     userRepository.delete(user);
   }
 }

@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.portfolique.dto.response.NotificationResponse;
+import com.portfolique.entity.Feedback;
 import com.portfolique.entity.Notification;
 import com.portfolique.entity.Portfolio;
 import com.portfolique.entity.User;
@@ -33,6 +34,7 @@ public class NotificationServiceTest {
   private User recipient;
   private User sender;
   private Portfolio portfolio;
+  private Feedback feedback;
   private Notification notification;
 
   @BeforeEach
@@ -40,6 +42,7 @@ public class NotificationServiceTest {
     recipient = User.builder().id(1L).username("recipient").build();
     sender = User.builder().id(2L).username("sender").build();
     portfolio = Portfolio.builder().id(1L).user(recipient).build();
+    feedback = Feedback.builder().id(1L).user(sender).portfolio(portfolio).build();
     notification =
         Notification.builder()
             .id(1L)
@@ -53,7 +56,7 @@ public class NotificationServiceTest {
 
   @Test
   void testCreateFeedbackNotification() {
-    notificationService.createFeedbackNotification(sender, portfolio);
+    notificationService.createFeedbackNotification(sender, portfolio, feedback);
     verify(notificationRepository, times(1)).save(any(Notification.class));
   }
 

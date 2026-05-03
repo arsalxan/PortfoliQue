@@ -29,6 +29,12 @@ public class Notification {
   @JoinColumn(name = "portfolio_id")
   private Portfolio portfolio;
 
+  // Nullable: only set when this notification was triggered by a specific feedback submission.
+  // Used for cascading deletion — when the feedback is deleted, this notification goes with it.
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "feedback_id")
+  private Feedback feedback;
+
   @Column(nullable = false)
   private String type;
 

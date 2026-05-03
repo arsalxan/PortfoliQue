@@ -1,6 +1,7 @@
 package com.portfolique.service;
 
 import com.portfolique.dto.response.NotificationResponse;
+import com.portfolique.entity.Feedback;
 import com.portfolique.entity.Notification;
 import com.portfolique.entity.Portfolio;
 import com.portfolique.entity.User;
@@ -22,12 +23,13 @@ public class NotificationService {
   private final NotificationRepository notificationRepository;
 
   @Transactional
-  public void createFeedbackNotification(User sender, Portfolio portfolio) {
+  public void createFeedbackNotification(User sender, Portfolio portfolio, Feedback feedback) {
     Notification notification =
         Notification.builder()
             .sender(sender)
             .recipient(portfolio.getUser())
             .portfolio(portfolio)
+            .feedback(feedback)
             .type("new_comment")
             .isRead(false)
             .build();

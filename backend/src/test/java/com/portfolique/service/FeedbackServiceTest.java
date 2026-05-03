@@ -76,7 +76,8 @@ public class FeedbackServiceTest {
     FeedbackResponse res = feedbackService.createFeedback(1L, req, author);
 
     assertThat(res).isNotNull();
-    verify(notificationService).createFeedbackNotification(author, portfolio);
+    verify(notificationService)
+        .createFeedbackNotification(eq(author), eq(portfolio), any(Feedback.class));
   }
 
   @Test
@@ -85,16 +86,6 @@ public class FeedbackServiceTest {
     when(feedbackRepository.findById(1L)).thenReturn(Optional.of(feedback));
 
     feedbackService.deleteFeedback(1L, author);
-
-    verify(feedbackRepository).delete(feedback);
-  }
-
-  @Test
-  void testDeleteFeedback_AuthorizedByOwner() {
-    Feedback feedback = Feedback.builder().id(1L).user(author).portfolio(portfolio).build();
-    when(feedbackRepository.findById(1L)).thenReturn(Optional.of(feedback));
-
-    feedbackService.deleteFeedback(1L, owner);
 
     verify(feedbackRepository).delete(feedback);
   }

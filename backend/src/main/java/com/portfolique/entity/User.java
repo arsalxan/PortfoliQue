@@ -2,6 +2,7 @@ package com.portfolique.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import lombok.*;
@@ -46,6 +47,24 @@ public class User implements UserDetails {
 
   @Enumerated(EnumType.STRING)
   private Role role;
+
+  // ── Owned relationships: cascades so all child data is deleted with the user ──
+
+  @Builder.Default
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Portfolio> portfolios = new ArrayList<>();
+
+  @Builder.Default
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Feedback> feedbacksGiven = new ArrayList<>();
+
+  @Builder.Default
+  @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Notification> notificationsReceived = new ArrayList<>();
+
+  @Builder.Default
+  @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Notification> notificationsSent = new ArrayList<>();
 
   @CreationTimestamp private LocalDateTime createdAt;
 

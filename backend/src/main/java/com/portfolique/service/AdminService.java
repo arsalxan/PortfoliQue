@@ -53,6 +53,8 @@ public class AdminService {
         userRepository
             .findById(userId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    // JPA cascades (User → portfolios, feedbacksGiven, notificationsReceived, notificationsSent)
+    // automatically delete all related data.
     userRepository.delete(user);
   }
 
