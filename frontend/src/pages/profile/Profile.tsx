@@ -84,13 +84,15 @@ export default function Profile() {
     try {
       const updatedProfile = await userService.updateProfile(formData);
       setProfile(updatedProfile);
-      setSuccess('Profile updated successfully!');
+      toast.success('Profile updated successfully!');
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setActiveTab('overview');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update profile.');
+      const message = err.response?.data?.message || 'Failed to update profile.';
+      setError(message);
+      toast.error(message);
     } finally {
       setUpdating(false);
     }

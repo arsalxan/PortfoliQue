@@ -94,14 +94,10 @@ export default function Register() {
         icon: '📧'
       });
       navigate('/login');
-    } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'response' in err) {
-        const axiosErr = err as { response?: { data?: { message?: string } } };
-        setServerError(axiosErr.response?.data?.message || 'Registration failed. Please try again.');
-      } else {
-        setServerError('Registration failed. Please try again.');
-        toast.error('Unable to complete registration.');
-      }
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Registration failed. Please try again.';
+      setServerError(message);
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
