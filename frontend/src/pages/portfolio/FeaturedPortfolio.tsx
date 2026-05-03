@@ -21,8 +21,8 @@ export default function FeaturedPortfolio() {
   const featuredFeedbacks = [
     {
       id: 1,
-      fullName: "Dr. Sarah Chen",
-      username: "schen_cs",
+      fullName: "Modassir Khan",
+      username: "md_khan",
       createdAt: "2024-05-15T09:00:00Z",
       academicVision: "Dr. Bokhari's academic contributions are legendary, and this portfolio does them justice. It's a fitting digital archive for a visionary who has mentored hundreds of scholars.",
       design: "The minimalist design choice is excellent. It reflects the Professor's rigorous and precise approach to computer science research. One minor suggestion would be to increase the line-height in the long publication lists.",
@@ -30,8 +30,8 @@ export default function FeaturedPortfolio() {
     },
     {
       id: 2,
-      fullName: "Marcus Thorne",
-      username: "mthorne_dev",
+      fullName: "Prof. Amit Sharma",
+      username: "asharma_cs",
       createdAt: "2024-05-12T14:30:00Z",
       leadershipPraise: "It is an honor to review a portfolio from such a distinguished academic. His visionary leadership is well-represented by the clear organizational structure of this site.",
       uxFlow: "The navigation between teaching history and research archives is very intuitive. It reflects the Professor's own clarity in thought and professional execution.",
@@ -85,18 +85,28 @@ export default function FeaturedPortfolio() {
                     style={{ borderBottom: '1px solid var(--border)' }} 
                   />
                   <div className="card-body p-4">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
                       <div className="badge bg-primary px-3 py-2 shadow-sm">Featured Portfolio</div>
-                      <a 
-                        href={professorData.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="btn btn-sm btn-primary rounded-pill px-3 shadow-sm fw-bold"
-                      >
-                        Visit Site <i className="fas fa-external-link-alt ms-1"></i>
-                      </a>
+                      <div className="d-flex gap-2">
+                        <a 
+                          href={professorData.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-bold"
+                          style={{ fontSize: '0.75rem' }}
+                        >
+                          Visit <i className="fas fa-external-link-alt ms-1"></i>
+                        </a>
+                        <Link 
+                          to="/portfolios/featured/bokhari/ai-review" 
+                          className="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-bold shadow-sm"
+                          style={{ fontSize: '0.75rem' }}
+                        >
+                          <i className="fas fa-robot me-1"></i> AI Review
+                        </Link>
+                      </div>
                     </div>
-                    <h4 className="fw-bold mb-2">{professorData.title}</h4>
+                    <h4 className="fw-bold mb-2 text-dark">{professorData.title}</h4>
                     <p className="text-muted mb-0" style={{ lineHeight: '1.6' }}>{professorData.description}</p>
                   </div>
                 </div>
