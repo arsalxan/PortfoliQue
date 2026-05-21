@@ -7,12 +7,21 @@ interface PortfolioCardProps {
   onDelete?: (id: number) => void;
 }
 
+const getOptimizedImageUrl = (url: string | null | undefined): string => {
+  if (!url) return '/images/defaultscreenshot.svg';
+  
+  // Apply Cloudinary on-the-fly optimization if it is a Cloudinary asset URL
+  if (url.includes('res.cloudinary.com')) {
+    return url.replace('/upload/', '/upload/f_auto,q_auto,w_600,c_scale/');
+  }
+  return url;
+};
+
 export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProps) {
   const { user } = useAuth();
   const isOwner = user?.id === portfolio.userId;
 
-  // Use the default image path from the public folder
-  const displayScreenshot = portfolio.screenshot || '/images/defaultscreenshot.svg';
+  const displayScreenshot = getOptimizedImageUrl(portfolio.screenshot);
 
   return (
     <div className="col">
