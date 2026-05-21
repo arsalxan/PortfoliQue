@@ -4,6 +4,7 @@ import { portfolioService } from '../../services/portfolioService.ts';
 import type { Portfolio } from '../../types/portfolio.ts';
 import PortfolioCard from '../../components/portfolio/PortfolioCard.tsx';
 import PortfolioCardSkeleton from '../../components/common/PortfolioCardSkeleton.tsx';
+import Pagination from '../../components/common/Pagination.tsx';
 
 export default function PortfolioSearch() {
   const [searchParams] = useSearchParams();
@@ -86,36 +87,12 @@ export default function PortfolioSearch() {
             ))}
           </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <nav className="mt-5 d-flex justify-content-center">
-              <ul className="pagination shadow-sm">
-                <li className={`page-item ${page === 0 ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
-                    onClick={() => setPage(prev => prev - 1)}
-                  >
-                    Previous
-                  </button>
-                </li>
-                {[...Array(totalPages)].map((_, i) => (
-                  <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => setPage(i)}>
-                      {i + 1}
-                    </button>
-                  </li>
-                ))}
-                <li className={`page-item ${page === totalPages - 1 ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
-                    onClick={() => setPage(prev => prev + 1)}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          )}
+          <Pagination 
+            currentPage={page} 
+            totalPages={totalPages} 
+            onPageChange={setPage} 
+            ariaLabel="Search results pagination" 
+          />
         </>
       )}
     </div>

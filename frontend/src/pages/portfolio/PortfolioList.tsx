@@ -4,6 +4,7 @@ import { portfolioService } from '../../services/portfolioService.ts';
 import type { Portfolio, PortfolioPage } from '../../types/portfolio.ts';
 import PortfolioCard from '../../components/portfolio/PortfolioCard.tsx';
 import PortfolioCardSkeleton from '../../components/common/PortfolioCardSkeleton.tsx';
+import Pagination from '../../components/common/Pagination.tsx';
 
 export default function PortfolioList() {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
@@ -103,37 +104,12 @@ export default function PortfolioList() {
             ))}
           </div>
 
-          {totalPages > 1 && (
-            <nav className="mt-5 d-flex justify-content-center" aria-label="Portfolio pagination">
-              <ul className="pagination shadow-sm">
-                <li className={`page-item ${currentPage === 0 ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
-                    onClick={() => setCurrentPage(prev => prev - 1)}
-                    aria-label="Previous"
-                  >
-                    <span aria-hidden="true">&laquo;</span>
-                  </button>
-                </li>
-                {[...Array(totalPages)].map((_, i) => (
-                  <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
-                    <button className="page-link" onClick={() => setCurrentPage(i)}>
-                      {i + 1}
-                    </button>
-                  </li>
-                ))}
-                <li className={`page-item ${currentPage === totalPages - 1 ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
-                    onClick={() => setCurrentPage(prev => prev + 1)}
-                    aria-label="Next"
-                  >
-                    <span aria-hidden="true">&raquo;</span>
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          )}
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            onPageChange={setCurrentPage} 
+            ariaLabel="Portfolio pagination" 
+          />
         </>
       )}
     </div>

@@ -6,6 +6,7 @@ import PortfolioCard from '../../components/portfolio/PortfolioCard';
 import PortfolioCardSkeleton from '../../components/common/PortfolioCardSkeleton';
 import ProfileSidebar from '../../components/layout/ProfileSidebar';
 import ConfirmModal from '../../components/common/ConfirmModal';
+import Pagination from '../../components/common/Pagination';
 import toast from 'react-hot-toast';
 
 export default function MyPortfolios() {
@@ -94,24 +95,12 @@ export default function MyPortfolios() {
                 ))}
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <nav className="mt-5">
-                  <ul className="pagination justify-content-center">
-                    <li className={`page-item ${page === 0 ? 'disabled' : ''}`}>
-                      <button className="page-link" onClick={() => setPage(p => p - 1)}>Previous</button>
-                    </li>
-                    {[...Array(totalPages)].map((_, i) => (
-                      <li key={i} className={`page-item ${page === i ? 'active' : ''}`}>
-                        <button className="page-link" onClick={() => setPage(i)}>{i + 1}</button>
-                      </li>
-                    ))}
-                    <li className={`page-item ${page === totalPages - 1 ? 'disabled' : ''}`}>
-                      <button className="page-link" onClick={() => setPage(p => p + 1)}>Next</button>
-                    </li>
-                  </ul>
-                </nav>
-              )}
+              <Pagination 
+                currentPage={page} 
+                totalPages={totalPages} 
+                onPageChange={setPage} 
+                ariaLabel="My portfolios pagination" 
+              />
             </>
           )}
         </div>
