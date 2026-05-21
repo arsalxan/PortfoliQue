@@ -24,7 +24,7 @@ export default function PortfolioSearch() {
     setLoading(true);
     setError('');
     try {
-      const data = await portfolioService.searchPortfolios(query, page, 9);
+      const data = await portfolioService.searchPortfolios(query, page, 6);
       setPortfolios(data.content);
       setTotalPages(data.totalPages);
     } catch (err) {

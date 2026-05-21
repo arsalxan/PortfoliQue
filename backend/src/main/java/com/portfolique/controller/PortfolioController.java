@@ -41,14 +41,14 @@ public class PortfolioController {
 
   @GetMapping("")
   public ResponseEntity<Page<PortfolioResponse>> getAllPortfolios(
-      @PageableDefault(size = 9) Pageable pageable) {
+      @PageableDefault(size = 6) Pageable pageable) {
     return ResponseEntity.ok(portfolioService.getAllPortfolios(pageable));
   }
 
   @GetMapping("/my")
   public ResponseEntity<Page<PortfolioResponse>> getMyPortfolios(
       @AuthenticationPrincipal UserDetails userDetails,
-      @PageableDefault(size = 9) Pageable pageable) {
+      @PageableDefault(size = 6) Pageable pageable) {
     User currentUser = getCurrentUser(userDetails);
     return ResponseEntity.ok(portfolioService.getMyPortfolios(currentUser, pageable));
   }
@@ -91,7 +91,7 @@ public class PortfolioController {
 
   @GetMapping("/search")
   public ResponseEntity<Page<PortfolioResponse>> searchPortfolios(
-      @RequestParam("q") String query, @PageableDefault(size = 9) Pageable pageable) {
+      @RequestParam("q") String query, @PageableDefault(size = 6) Pageable pageable) {
     return ResponseEntity.ok(portfolioService.searchPortfolios(query, pageable));
   }
 

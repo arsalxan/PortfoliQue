@@ -2,14 +2,14 @@ import api from './api.ts';
 import type { Portfolio, PortfolioPage, AiReviewResponse } from '../types/portfolio.ts';
 
 export const portfolioService = {
-  getAllPortfolios: async (page = 0, size = 12): Promise<PortfolioPage> => {
+  getAllPortfolios: async (page = 0, size = 6): Promise<PortfolioPage> => {
     const response = await api.get<PortfolioPage>('/portfolios', {
       params: { page, size }
     });
     return response.data;
   },
 
-  getMyPortfolios: async (page = 0, size = 9): Promise<PortfolioPage> => {
+  getMyPortfolios: async (page = 0, size = 6): Promise<PortfolioPage> => {
     const response = await api.get<PortfolioPage>('/portfolios/my', {
       params: { page, size }
     });
@@ -43,7 +43,7 @@ export const portfolioService = {
     await api.delete(`/portfolios/${id}`);
   },
 
-  searchPortfolios: async (query: string, page = 0, size = 9): Promise<PortfolioPage> => {
+  searchPortfolios: async (query: string, page = 0, size = 6): Promise<PortfolioPage> => {
     const response = await api.get<PortfolioPage>('/portfolios/search', {
       params: { q: query, page, size }
     });

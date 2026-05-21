@@ -21,7 +21,7 @@ export default function PortfolioList() {
   const fetchPortfolios = async (page: number) => {
     setLoading(true);
     try {
-      const data: PortfolioPage = await portfolioService.getAllPortfolios(page, 9);
+      const data: PortfolioPage = await portfolioService.getAllPortfolios(page, 6);
       setPortfolios(data.content);
       setTotalPages(data.totalPages);
     } catch (err) {
