@@ -176,35 +176,38 @@ export default function FeedbackList() {
                         </Link>
                       </div>
 
-                      {/* Feedback preview fields */}
-                      <div className="d-flex flex-column gap-2">
-                        {feedback.design && (
-                          <div className="p-3 rounded-3" style={{ backgroundColor: 'var(--background)' }}>
-                            <div className="d-flex align-items-center mb-1 gap-2">
-                              <span className="badge rounded-pill fw-semibold"
-                                style={{ backgroundColor: 'rgba(37,99,235,0.1)', color: 'var(--primary)', fontSize: '0.72rem' }}>
-                                Design
-                              </span>
-                            </div>
-                            <p className="mb-0 small text-truncate-2-lines" style={{ color: 'var(--text-primary)' }}>
-                              {feedback.design}
-                            </p>
+                      {/* Feedback preview — first 2 filled sections only */}
+                      {(() => {
+                        const sectionConfig = [
+                          { key: 'design',               label: 'Design',               bg: 'rgba(37,99,235,0.1)',   color: 'var(--primary)' },
+                          { key: 'responsiveness',       label: 'Responsiveness',       bg: 'rgba(72,187,120,0.12)', color: '#2f855a' },
+                          { key: 'content',              label: 'Content/Copywriting',  bg: 'rgba(237,137,54,0.12)', color: '#c05621' },
+                          { key: 'uxFlow',               label: 'UX Flow',              bg: 'rgba(159,122,234,0.12)',color: '#6b46c1' },
+                          { key: 'accessibility',        label: 'Accessibility',         bg: 'rgba(237,100,166,0.12)',color: '#b83280' },
+                          { key: 'technicalPerformance', label: 'Technical Performance', bg: 'rgba(56,178,172,0.12)', color: '#285e61' },
+                          { key: 'additional',           label: 'Additional Thoughts',   bg: 'rgba(113,128,150,0.12)',color: '#4a5568' },
+                        ];
+                        const previewSections = sectionConfig
+                          .filter(s => feedback[s.key as keyof typeof feedback] && String(feedback[s.key as keyof typeof feedback]).trim() !== '')
+                          .slice(0, 2);
+                        return (
+                          <div className="d-flex flex-column gap-2">
+                            {previewSections.map(section => (
+                              <div key={section.key} className="p-3 rounded-3" style={{ backgroundColor: 'var(--background)' }}>
+                                <div className="d-flex align-items-center mb-1 gap-2">
+                                  <span className="badge rounded-pill fw-semibold"
+                                    style={{ backgroundColor: section.bg, color: section.color, fontSize: '0.72rem' }}>
+                                    {section.label}
+                                  </span>
+                                </div>
+                                <p className="mb-0 small text-truncate-2-lines" style={{ color: 'var(--text-primary)' }}>
+                                  {String(feedback[section.key as keyof typeof feedback])}
+                                </p>
+                              </div>
+                            ))}
                           </div>
-                        )}
-                        {feedback.responsiveness && (
-                          <div className="p-3 rounded-3" style={{ backgroundColor: 'var(--background)' }}>
-                            <div className="d-flex align-items-center mb-1 gap-2">
-                              <span className="badge rounded-pill fw-semibold"
-                                style={{ backgroundColor: 'rgba(72,187,120,0.12)', color: '#2f855a', fontSize: '0.72rem' }}>
-                                Responsiveness
-                              </span>
-                            </div>
-                            <p className="mb-0 small text-truncate-2-lines" style={{ color: 'var(--text-primary)' }}>
-                              {feedback.responsiveness}
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                        );
+                      })()}
 
                       {/* AI Summarize */}
                       <div className="mt-3 pt-3 border-top">
