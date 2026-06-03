@@ -20,4 +20,7 @@ public interface AiReviewRepository extends JpaRepository<AiReview, Long> {
   Page<AiReview> findByPortfolioOrderByVersionDesc(Portfolio portfolio, Pageable pageable);
 
   Integer countByPortfolio(Portfolio portfolio);
+
+  // Get the absolute latest review run by a specific user across all their portfolios
+  Optional<AiReview> findTopByPortfolio_UserOrderByCreatedAtDesc(com.portfolique.entity.User user);
 }

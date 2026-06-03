@@ -8,6 +8,7 @@ import { aiReviewService } from '../services/aiReviewService';
 vi.mock('../services/aiReviewService', () => ({
   aiReviewService: {
     getReviewStatus: vi.fn(),
+    getActiveReview: vi.fn(),
   },
 }));
 

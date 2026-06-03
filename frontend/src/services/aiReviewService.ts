@@ -20,6 +20,17 @@ export const aiReviewService = {
     return res.data;
   },
 
+  // Fetch user's latest active review status across all portfolios
+  getActiveReview: async (): Promise<AiReviewStatus | null> => {
+    try {
+      const res = await api.get<AiReviewStatus>('/portfolios/ai-reviews/active');
+      if (res.status === 204) return null;
+      return res.data;
+    } catch {
+      return null;
+    }
+  },
+
   // Paginated history of all reviews for a portfolio
   getReviewHistory: async (portfolioId: number, page = 0, size = 5): Promise<AiReviewHistoryPage> => {
     const res = await api.get<AiReviewHistoryPage>(`/portfolios/${portfolioId}/ai-reviews/history`, {

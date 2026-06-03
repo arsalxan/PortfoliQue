@@ -152,6 +152,31 @@ public class PortfolioController {
                 .build());
   }
 
+  // 1b. Get the latest review run by the logged-in user across all portfolios (useful if portfolio
+  // got deleted)
+  @GetMapping("/ai-reviews/active")
+  public ResponseEntity<AiReviewStatusResponse> getActiveReview(
+      @AuthenticationPrincipal UserDetails userDetails) {
+    User currentUser = getCurrentUser(userDetails);
+    Optional<AiReview> activeOpt =
+        aiReviewRepository.findTopByPortfolio_UserOrderByCreatedAtDesc(currentUser);
+
+    if (activeOpt.isEmpty()) {
+      return ResponseEntity.noContent().build();
+    }
+
+    AiReview active = activeOpt.get();
+    return ResponseEntity.ok(
+        AiReviewStatusResponse.builder()
+            .id(active.getId())
+            .portfolioId(active.getPortfolio().getId())
+            .portfolioUrl(active.getPortfolio().getUrl())
+            .version(active.getVersion())
+            .status(active.getStatus())
+            .createdAt(active.getCreatedAt())
+            .build());
+  }
+
   // 2. Check current status of a specific review by its ID
   @GetMapping("/ai-reviews/{reviewId}/status")
   public ResponseEntity<AiReviewStatusResponse> getReviewStatus(@PathVariable Long reviewId) {

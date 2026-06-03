@@ -7,6 +7,7 @@ interface AiReviewContextType {
   activeReview: AiReviewStatus | null;
   setActiveReview: (review: AiReviewStatus | null) => void;
   checkLatestReviewStatus: (reviewId: number) => Promise<void>;
+  refreshActiveReview: () => Promise<void>;
 }
 
 const AiReviewContext = createContext<AiReviewContextType | undefined>(undefined);
@@ -42,6 +43,15 @@ export function AiReviewProvider({ children }: { children: ReactNode }) {
     }
   }, [setActiveReview]);
 
+  const refreshActiveReview = useCallback(async () => {
+    try {
+      const latest = await aiReviewService.getActiveReview();
+      setActiveReview(latest);
+    } catch (err) {
+      console.error('Failed to refresh active review:', err);
+    }
+  }, [setActiveReview]);
+
   // Polling hook: runs every 10 seconds if active review is IN_PROGRESS
   useEffect(() => {
     if (!activeReview || activeReview.status !== 'IN_PROGRESS') return;
@@ -53,16 +63,22 @@ export function AiReviewProvider({ children }: { children: ReactNode }) {
         if (updated.status !== 'IN_PROGRESS') {
           clearInterval(interval);
         }
-      } catch (err) {
-        console.error('Error polling AI Review status:', err);
+      } catch (err: any) {
+        // If status check yields 404 (indicating the portfolio/audit was deleted), refresh
+        if (err.response?.status === 404) {
+          clearInterval(interval);
+          refreshActiveReview();
+        } else {
+          console.error('Error polling AI Review status:', err);
+        }
       }
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [activeReview, setActiveReview]);
+  }, [activeReview, setActiveReview, refreshActiveReview]);
 
   return (
-    <AiReviewContext.Provider value={{ activeReview, setActiveReview, checkLatestReviewStatus }}>
+    <AiReviewContext.Provider value={{ activeReview, setActiveReview, checkLatestReviewStatus, refreshActiveReview }}>
       {children}
     </AiReviewContext.Provider>
   );
