@@ -21,8 +21,19 @@ vi.mock('../../services/aiReviewService', () => ({
   },
 }));
 
-const { mockNavigate } = vi.hoisted(() => ({
-  mockNavigate: vi.fn(),
+const { mockNavigate, mockToast } = vi.hoisted(() => {
+  const mToast = vi.fn();
+  (mToast as any).loading = vi.fn();
+  (mToast as any).success = vi.fn();
+  (mToast as any).error = vi.fn();
+  return {
+    mockNavigate: vi.fn(),
+    mockToast: mToast,
+  };
+});
+
+vi.mock('react-hot-toast', () => ({
+  default: mockToast,
 }));
 
 vi.mock('react-router-dom', async () => {
@@ -195,6 +206,46 @@ describe('PortfolioCard Component', () => {
       expect(aiReviewService.triggerReview).toHaveBeenCalledWith(42);
       expect(mockSetLatestReview).toHaveBeenCalledWith(mockStatusResponse);
       expect(mockNavigate).toHaveBeenCalledWith('/portfolios/ai-reviews/99');
+    });
+  });
+
+  test('shows rate-limit toast when backend returns 429', async () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: 1, username: 'owner_user', role: 'USER' },
+      isAuthenticated: true,
+      isLoading: false,
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      updateUser: vi.fn(),
+      token: null,
+    });
+
+    vi.mocked(useAiReview).mockReturnValue({
+      latestReview: null,
+      setLatestReview: vi.fn(),
+      checkLatestReviewStatus: vi.fn(),
+      refreshLatestReview: vi.fn(),
+    });
+
+    vi.mocked(aiReviewService.triggerReview).mockRejectedValue({
+      response: { status: 429, data: { message: 'You have already used your AI review for today.' } },
+    });
+
+    render(
+      <BrowserRouter>
+        <PortfolioCard portfolio={mockPortfolio} />
+      </BrowserRouter>
+    );
+
+    const reviewButton = screen.getByRole('button', { name: /AI Review/i });
+    fireEvent.click(reviewButton);
+
+    await waitFor(() => {
+      expect(mockToast).toHaveBeenCalledWith(
+        expect.stringContaining('already used your AI review today'),
+        expect.objectContaining({ icon: '⏳' })
+      );
     });
   });
 });

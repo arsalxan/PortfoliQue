@@ -36,8 +36,15 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
       toast.success('AI Audit triggered! Check status in navigation bar.', { id: loadingToast });
       navigate(`/portfolios/ai-reviews/${statusResponse.id}`);
     } catch (err: any) {
-      const errMsg = err.response?.data?.message || 'Failed to trigger AI Review.';
-      toast.error(errMsg, { id: loadingToast });
+      if (err.response?.status === 429) {
+        toast('You have already used your AI review today. Come back tomorrow! 🗓️', {
+          id: loadingToast,
+          icon: '⏳',
+        });
+      } else {
+        const errMsg = err.response?.data?.message || 'Failed to trigger AI Review.';
+        toast.error(errMsg, { id: loadingToast });
+      }
     }
   };
 

@@ -9,6 +9,8 @@ import com.portfolique.repository.UserRepository;
 import com.portfolique.service.AsyncAiReviewService;
 import com.portfolique.service.PortfolioService;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -103,6 +105,14 @@ public class PortfolioController {
 
     if (!portfolio.getUser().getId().equals(currentUser.getId())) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not own this portfolio");
+    }
+
+    // Per-user daily rate limit: one AI review trigger per user per day (across all portfolios)
+    LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
+    if (aiReviewRepository.existsByPortfolio_UserAndCreatedAtAfter(currentUser, startOfToday)) {
+      throw new ResponseStatusException(
+          HttpStatus.TOO_MANY_REQUESTS,
+          "You have already used your AI review for today. Please come back tomorrow.");
     }
 
     // Check if there's already an IN_PROGRESS review for this portfolio to prevent double runs

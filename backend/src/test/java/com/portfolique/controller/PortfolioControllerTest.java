@@ -238,4 +238,65 @@ public class PortfolioControllerTest {
         .perform(delete("/api/v1/portfolios/ai-reviews/99").with(csrf()))
         .andExpect(status().isNotFound());
   }
+
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testTriggerAiReview_Success() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+    com.portfolique.entity.Portfolio mockPortfolio =
+        com.portfolique.entity.Portfolio.builder()
+            .id(10L)
+            .user(mockUser)
+            .url("http://test.com")
+            .build();
+    when(portfolioRepository.findById(10L)).thenReturn(Optional.of(mockPortfolio));
+    when(aiReviewRepository.existsByPortfolio_UserAndCreatedAtAfter(eq(mockUser), any()))
+        .thenReturn(false);
+    when(aiReviewRepository.findTopByPortfolioOrderByVersionDesc(mockPortfolio))
+        .thenReturn(Optional.empty());
+    when(aiReviewRepository.countByPortfolio(mockPortfolio)).thenReturn(0);
+
+    com.portfolique.entity.AiReview mockReview =
+        com.portfolique.entity.AiReview.builder()
+            .id(55L)
+            .portfolio(mockPortfolio)
+            .version(1)
+            .status(com.portfolique.entity.AiReviewStatus.IN_PROGRESS)
+            .createdAt(java.time.LocalDateTime.now())
+            .build();
+    when(aiReviewRepository.save(any())).thenReturn(mockReview);
+
+    mockMvc
+        .perform(post("/api/v1/portfolios/10/ai-review/trigger").with(csrf()))
+        .andExpect(status().isAccepted())
+        .andExpect(jsonPath("$.id").value(55L))
+        .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+
+    verify(asyncAiReviewService).runReviewPipeline(any(), eq("http://test.com"));
+  }
+
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testTriggerAiReview_RateLimitExceeded() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+    com.portfolique.entity.Portfolio mockPortfolio =
+        com.portfolique.entity.Portfolio.builder()
+            .id(10L)
+            .user(mockUser)
+            .url("http://test.com")
+            .build();
+    when(portfolioRepository.findById(10L)).thenReturn(Optional.of(mockPortfolio));
+    when(aiReviewRepository.existsByPortfolio_UserAndCreatedAtAfter(eq(mockUser), any()))
+        .thenReturn(true);
+
+    mockMvc
+        .perform(post("/api/v1/portfolios/10/ai-review/trigger").with(csrf()))
+        .andExpect(status().isTooManyRequests());
+
+    verify(asyncAiReviewService, never()).runReviewPipeline(any(), any());
+  }
 }
