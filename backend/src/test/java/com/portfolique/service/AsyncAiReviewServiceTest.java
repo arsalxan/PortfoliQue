@@ -170,6 +170,7 @@ public class AsyncAiReviewServiceTest {
 
     AiReview savedReview = reviewCaptor.getValue();
     assertThat(savedReview.getStatus()).isEqualTo(AiReviewStatus.FAILED);
-    assertThat(savedReview.getErrorMessage()).contains("Connection refused");
+    assertThat(savedReview.getErrorMessage())
+        .isEqualTo("AI review could not be generated. Please try again later.");
   }
 }

@@ -4,15 +4,22 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.portfolique.entity.Feedback;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * Live test to verify Spring AI OpenAI Compatability via Gemini API. This test only runs if
- * GEMINI_API_KEY is present in the system environment.
+ * Live integration test that calls the real Gemini API.
+ *
+ * <p>This test is tagged "live" and is EXCLUDED from the standard {@code mvn test} run. It should
+ * only be run manually or in a dedicated pipeline step with: {@code mvn test -Dgroups=live}
+ *
+ * <p>It is also guarded by {@code @EnabledIfEnvironmentVariable} so it only executes when a real
+ * GEMINI_API_KEY is present in the environment.
  */
+@Tag("live")
 @SpringBootTest(
     properties = {
       "spring.ai.openai.api-key=${GEMINI_API_KEY}",

@@ -2,6 +2,7 @@ package com.portfolique.service;
 
 import com.portfolique.entity.AiReview;
 import com.portfolique.entity.AiReviewStatus;
+import com.portfolique.exception.AiRateLimitException;
 import com.portfolique.repository.AiReviewRepository;
 import com.portfolique.service.LighthouseService.LighthouseResult;
 import com.portfolique.service.PortfolioAnalyzerService.PortfolioAnalysis;
@@ -103,10 +104,16 @@ public class AsyncAiReviewService {
       aiReviewRepository.save(review);
       log.info("Async AI review pipeline successfully COMPLETED for Review ID: {}", review.getId());
 
+    } catch (AiRateLimitException e) {
+      // Quota / rate-limit: logged at WARN only — not alarming, not user-visible
+      log.warn("[AI Review Pipeline] Rate limit hit for Review ID={}", review.getId());
+      review.setStatus(AiReviewStatus.FAILED);
+      review.setErrorMessage("AI review could not be generated. Please try again later.");
+      aiReviewRepository.save(review);
     } catch (Exception e) {
       log.error("[AI Review Pipeline Failed] ID={}, Error={}", review.getId(), e.getMessage(), e);
       review.setStatus(AiReviewStatus.FAILED);
-      review.setErrorMessage(e.getMessage());
+      review.setErrorMessage("AI review could not be generated. Please try again later.");
       aiReviewRepository.save(review);
     }
   }

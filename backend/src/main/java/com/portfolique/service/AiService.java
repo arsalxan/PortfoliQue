@@ -1,6 +1,7 @@
 package com.portfolique.service;
 
 import com.portfolique.entity.Feedback;
+import com.portfolique.exception.AiRateLimitException;
 import com.portfolique.service.PortfolioAnalyzerService.PortfolioAnalysis;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -121,7 +122,12 @@ public class AiService {
     try {
       return chatClient.prompt().user(prompt).call().content();
     } catch (Exception e) {
-      log.error("Spring AI Gemini Error: {}", e.getMessage());
+      String message = e.getMessage();
+      if (message != null && (message.contains("RESOURCE_EXHAUSTED") || message.contains("429"))) {
+        log.warn("[Gemini] Rate limit / quota exceeded: {}", message);
+        throw new AiRateLimitException(e);
+      }
+      log.error("[Gemini] Unexpected API error: {}", message, e);
       throw e;
     }
   }

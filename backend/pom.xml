@@ -196,8 +196,35 @@
           </execution>
         </executions>
       </plugin>
+		  <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<!-- Exclude @Tag("live") tests from the standard build — they call real APIs.
+				 To run only live tests: mvn test -Plive -->
+			<configuration>
+				<excludedGroups>live</excludedGroups>
+			</configuration>
+		  </plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!-- Run only live (real API) tests: mvn test -Plive -->
+		<profile>
+			<id>live</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<configuration>
+							<groups>live</groups>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 
 </project>
