@@ -22,7 +22,7 @@ const getOptimizedImageUrl = (url: string | null | undefined): string => {
 
 export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProps) {
   const { user } = useAuth();
-  const { activeReview, setActiveReview } = useAiReview();
+  const { latestReview, setLatestReview } = useAiReview();
   const navigate = useNavigate();
   const isOwner = user?.id === portfolio.userId;
 
@@ -32,7 +32,7 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
     const loadingToast = toast.loading('Initializing AI Audit Pipeline...');
     try {
       const statusResponse = await aiReviewService.triggerReview(portfolio.id);
-      setActiveReview(statusResponse);
+      setLatestReview(statusResponse);
       toast.success('AI Audit triggered! Check status in navigation bar.', { id: loadingToast });
       navigate(`/portfolios/ai-reviews/${statusResponse.id}`);
     } catch (err: any) {
@@ -100,7 +100,7 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
             )}
             
             {isOwner ? (
-              activeReview && activeReview.portfolioId === portfolio.id && activeReview.status === 'IN_PROGRESS' ? (
+              latestReview && latestReview.portfolioId === portfolio.id && latestReview.status === 'IN_PROGRESS' ? (
                 <button disabled className="btn btn-warning btn-sm d-flex align-items-center opacity-75">
                   <i className="fas fa-spinner fa-spin me-1"></i> Auditing...
                 </button>

@@ -1,17 +1,42 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { aiReviewService } from '../../services/aiReviewService';
 import { portfolioService } from '../../services/portfolioService';
 import type { AiReviewFull, Portfolio } from '../../types/portfolio';
+import { useAuth } from '../../context/AuthContext';
+import { useAiReview } from '../../context/AiReviewContext';
 import ReactMarkdown from 'react-markdown';
 import toast from 'react-hot-toast';
 
 export default function AiReview() {
   const { reviewId } = useParams<{ reviewId: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { refreshLatestReview } = useAiReview();
   const [review, setReview] = useState<AiReviewFull | null>(null);
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'summary' | 'content' | 'performance'>('summary');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const isOwner = user?.id === portfolio?.userId;
+
+  const handleDelete = async () => {
+    if (!reviewId) return;
+    if (!window.confirm('Are you sure you want to delete this AI Audit review? This action cannot be undone.')) return;
+
+    setIsDeleting(true);
+    const toastId = toast.loading('Deleting AI Audit review...');
+    try {
+      await aiReviewService.deleteReview(Number(reviewId));
+      toast.success('AI Audit review deleted successfully', { id: toastId });
+      refreshLatestReview();
+      navigate('/portfolios');
+    } catch (err) {
+      toast.error('Failed to delete AI Audit review', { id: toastId });
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     let interval: any;
@@ -143,9 +168,20 @@ export default function AiReview() {
             <strong className="text-dark">{portfolio.fullName}'s Portfolio</strong>
           </p>
         </div>
-        <Link to={`/portfolios`} className="btn btn-outline-secondary rounded-pill px-3">
-          <i className="fas fa-arrow-left me-1"></i> Back
-        </Link>
+        <div className="d-flex gap-2">
+          {isOwner && (
+            <button 
+              onClick={handleDelete} 
+              disabled={isDeleting}
+              className="btn btn-outline-danger rounded-pill px-3"
+            >
+              <i className="fas fa-trash-alt me-1"></i> Delete Audit
+            </button>
+          )}
+          <Link to={`/portfolios`} className="btn btn-outline-secondary rounded-pill px-3">
+            <i className="fas fa-arrow-left me-1"></i> Back
+          </Link>
+        </div>
       </div>
 
       {/* Scores Section */}

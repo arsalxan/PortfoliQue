@@ -193,7 +193,12 @@ public class BackendEndToEndFlowTest {
         aiReviewRepository.findByPortfolioOrderByVersionDesc(savedPortfolio, PageRequest.of(0, 5));
     assertEquals(1, history.getTotalElements());
     assertEquals(1, history.getContent().get(0).getVersion());
-    System.out.println("-> AI Review integration states verified!");
+
+    // Verify deletion of the review
+    aiReviewRepository.delete(review);
+    java.util.Optional<AiReview> deletedReview = aiReviewRepository.findById(review.getId());
+    assertTrue(deletedReview.isEmpty(), "AiReview should be deleted from the database");
+    System.out.println("-> AI Review deletion verified!");
 
     System.out.println("=== END TO END FLOW TEST COMPLETED SUCCESSFULLY ===");
   }

@@ -64,9 +64,10 @@ describe('PortfolioCard Component', () => {
     });
 
     vi.mocked(useAiReview).mockReturnValue({
-      activeReview: null,
-      setActiveReview: vi.fn(),
+      latestReview: null,
+      setLatestReview: vi.fn(),
       checkLatestReviewStatus: vi.fn(),
+      refreshLatestReview: vi.fn(),
     });
 
     render(
@@ -94,9 +95,10 @@ describe('PortfolioCard Component', () => {
     });
 
     vi.mocked(useAiReview).mockReturnValue({
-      activeReview: null,
-      setActiveReview: vi.fn(),
+      latestReview: null,
+      setLatestReview: vi.fn(),
       checkLatestReviewStatus: vi.fn(),
+      refreshLatestReview: vi.fn(),
     });
 
     render(
@@ -124,7 +126,7 @@ describe('PortfolioCard Component', () => {
 
     // Mock active review is IN_PROGRESS for this portfolio
     vi.mocked(useAiReview).mockReturnValue({
-      activeReview: {
+      latestReview: {
         id: 99,
         portfolioId: 42,
         portfolioUrl: 'https://testportfolio.com',
@@ -132,8 +134,9 @@ describe('PortfolioCard Component', () => {
         status: 'IN_PROGRESS',
         createdAt: '2026-06-03T12:00:00Z',
       },
-      setActiveReview: vi.fn(),
+      setLatestReview: vi.fn(),
       checkLatestReviewStatus: vi.fn(),
+      refreshLatestReview: vi.fn(),
     });
 
     render(
@@ -148,7 +151,7 @@ describe('PortfolioCard Component', () => {
   });
 
   test('calls triggerReview and redirects on click', async () => {
-    const mockSetActiveReview = vi.fn();
+    const mockSetLatestReview = vi.fn();
 
     vi.mocked(useAuth).mockReturnValue({
       user: { id: 1, username: 'owner_user', role: 'USER' },
@@ -162,9 +165,10 @@ describe('PortfolioCard Component', () => {
     });
 
     vi.mocked(useAiReview).mockReturnValue({
-      activeReview: null,
-      setActiveReview: mockSetActiveReview,
+      latestReview: null,
+      setLatestReview: mockSetLatestReview,
       checkLatestReviewStatus: vi.fn(),
+      refreshLatestReview: vi.fn(),
     });
 
     const mockStatusResponse = {
@@ -189,7 +193,7 @@ describe('PortfolioCard Component', () => {
 
     await waitFor(() => {
       expect(aiReviewService.triggerReview).toHaveBeenCalledWith(42);
-      expect(mockSetActiveReview).toHaveBeenCalledWith(mockStatusResponse);
+      expect(mockSetLatestReview).toHaveBeenCalledWith(mockStatusResponse);
       expect(mockNavigate).toHaveBeenCalledWith('/portfolios/ai-reviews/99');
     });
   });

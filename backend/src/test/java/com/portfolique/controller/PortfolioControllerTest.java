@@ -184,4 +184,58 @@ public class PortfolioControllerTest {
         .andExpect(jsonPath("$.content[0].url").value("http://test.com"))
         .andExpect(jsonPath("$.content[0].userId").value(1L));
   }
+
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testDeleteReview_Success() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+    com.portfolique.entity.Portfolio mockPortfolio =
+        com.portfolique.entity.Portfolio.builder().id(10L).user(mockUser).build();
+    com.portfolique.entity.AiReview mockReview =
+        com.portfolique.entity.AiReview.builder().id(99L).portfolio(mockPortfolio).build();
+
+    when(aiReviewRepository.findById(99L)).thenReturn(Optional.of(mockReview));
+
+    mockMvc
+        .perform(delete("/api/v1/portfolios/ai-reviews/99").with(csrf()))
+        .andExpect(status().isNoContent());
+
+    verify(aiReviewRepository).delete(mockReview);
+  }
+
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testDeleteReview_Forbidden() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    User otherUser = User.builder().id(2L).username("other").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+    com.portfolique.entity.Portfolio mockPortfolio =
+        com.portfolique.entity.Portfolio.builder().id(10L).user(otherUser).build();
+    com.portfolique.entity.AiReview mockReview =
+        com.portfolique.entity.AiReview.builder().id(99L).portfolio(mockPortfolio).build();
+
+    when(aiReviewRepository.findById(99L)).thenReturn(Optional.of(mockReview));
+
+    mockMvc
+        .perform(delete("/api/v1/portfolios/ai-reviews/99").with(csrf()))
+        .andExpect(status().isForbidden());
+
+    verify(aiReviewRepository, never()).delete(any());
+  }
+
+  @Test
+  @WithMockUser(username = "testuser", roles = "USER")
+  void testDeleteReview_NotFound() throws Exception {
+    User mockUser = User.builder().id(1L).username("testuser").role(Role.USER).build();
+    when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUser));
+
+    when(aiReviewRepository.findById(99L)).thenReturn(Optional.empty());
+
+    mockMvc
+        .perform(delete("/api/v1/portfolios/ai-reviews/99").with(csrf()))
+        .andExpect(status().isNotFound());
+  }
 }

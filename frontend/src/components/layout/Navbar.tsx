@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
-  const { activeReview } = useAiReview();
+  const { latestReview } = useAiReview();
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -82,20 +82,20 @@ export default function Navbar() {
                     <Link className={`nav-link ${isActive('/admin')}`} to="/admin" onClick={() => setIsNavCollapsed(true)}>Admin</Link>
                   </li>
                 )}
-                {activeReview && (
+                {latestReview && (
                   <li className="nav-item me-2">
-                    <Link to={`/portfolios/ai-reviews/${activeReview.id}`} onClick={() => setIsNavCollapsed(true)} style={{ textDecoration: 'none' }}>
-                      {activeReview.status === 'IN_PROGRESS' && (
+                    <Link to={`/portfolios/ai-reviews/${latestReview.id}`} onClick={() => setIsNavCollapsed(true)} style={{ textDecoration: 'none' }}>
+                      {latestReview.status === 'IN_PROGRESS' && (
                         <span className="badge bg-warning text-dark px-2 py-1.5 shadow-sm d-flex align-items-center">
                           <i className="fas fa-spinner fa-spin me-1"></i> Running Audit...
                         </span>
                       )}
-                      {activeReview.status === 'COMPLETED' && (
+                      {latestReview.status === 'COMPLETED' && (
                         <span className="badge bg-success px-2 py-1.5 shadow-sm d-flex align-items-center">
                           <i className="fas fa-check-circle me-1"></i> Audit Ready
                         </span>
                       )}
-                      {activeReview.status === 'FAILED' && (
+                      {latestReview.status === 'FAILED' && (
                         <span className="badge bg-danger px-2 py-1.5 shadow-sm d-flex align-items-center">
                           <i className="fas fa-exclamation-triangle me-1"></i> Audit Failed
                         </span>

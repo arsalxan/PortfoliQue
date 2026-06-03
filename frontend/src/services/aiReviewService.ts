@@ -21,9 +21,9 @@ export const aiReviewService = {
   },
 
   // Fetch user's latest active review status across all portfolios
-  getActiveReview: async (): Promise<AiReviewStatus | null> => {
+  getLatestReview: async (): Promise<AiReviewStatus | null> => {
     try {
-      const res = await api.get<AiReviewStatus>('/portfolios/ai-reviews/active');
+      const res = await api.get<AiReviewStatus>('/portfolios/ai-reviews/latest');
       if (res.status === 204) return null;
       return res.data;
     } catch {
@@ -37,5 +37,10 @@ export const aiReviewService = {
       params: { page, size }
     });
     return res.data;
+  },
+
+  // Delete a review
+  deleteReview: async (reviewId: number): Promise<void> => {
+    await api.delete(`/portfolios/ai-reviews/${reviewId}`);
   }
 };

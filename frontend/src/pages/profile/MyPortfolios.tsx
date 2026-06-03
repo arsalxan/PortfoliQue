@@ -11,7 +11,7 @@ import { useAiReview } from '../../context/AiReviewContext';
 import toast from 'react-hot-toast';
 
 export default function MyPortfolios() {
-  const { refreshActiveReview } = useAiReview();
+  const { refreshLatestReview } = useAiReview();
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -49,7 +49,7 @@ export default function MyPortfolios() {
       await portfolioService.deletePortfolio(portfolioToDelete);
       setPortfolios(portfolios.filter(p => p.id !== portfolioToDelete));
       toast.success('Portfolio deleted successfully');
-      refreshActiveReview();
+      refreshLatestReview();
     } catch (err) {
       toast.error('Failed to delete portfolio');
     } finally {

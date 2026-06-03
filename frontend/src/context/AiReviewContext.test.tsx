@@ -1,14 +1,20 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useEffect } from 'react';
 import { AiReviewProvider, useAiReview } from './AiReviewContext';
 import { aiReviewService } from '../services/aiReviewService';
+import { useAuth } from './AuthContext';
+
+// Mock the AuthContext
+vi.mock('./AuthContext', () => ({
+  useAuth: vi.fn(),
+}));
 
 // Mock the API wrapper
 vi.mock('../services/aiReviewService', () => ({
   aiReviewService: {
     getReviewStatus: vi.fn(),
-    getActiveReview: vi.fn(),
+    getLatestReview: vi.fn(),
   },
 }));
 
@@ -25,15 +31,22 @@ describe('AiReviewContext and Provider', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.clearAllMocks();
-    localStorage.clear();
+    vi.mocked(useAuth).mockReturnValue({
+      isAuthenticated: true,
+      isLoading: false,
+      user: { id: 1, email: 'test@example.com', role: 'USER' },
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+    });
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
-  test('restores active review from localStorage on mount', () => {
-    const savedReview = {
+  test('fetches latest review on mount when authenticated', async () => {
+    const mockReview = {
       id: 77,
       portfolioId: 42,
       portfolioUrl: 'https://saved.com',
@@ -41,25 +54,32 @@ describe('AiReviewContext and Provider', () => {
       status: 'COMPLETED' as const,
       createdAt: '2026-06-03T12:00:00Z',
     };
-    localStorage.setItem('activeAiReview', JSON.stringify(savedReview));
+    vi.mocked(aiReviewService.getLatestReview).mockResolvedValue(mockReview);
 
     let extractedContext: any = null;
-    render(
-      <AiReviewProvider>
-        <TestComponent onMount={(val) => { extractedContext = val; }} />
-      </AiReviewProvider>
-    );
+    await act(async () => {
+      render(
+        <AiReviewProvider>
+          <TestComponent onMount={(val) => { extractedContext = val; }} />
+        </AiReviewProvider>
+      );
+    });
 
-    expect(extractedContext.activeReview).toEqual(savedReview);
+    expect(aiReviewService.getLatestReview).toHaveBeenCalled();
+    expect(extractedContext.latestReview).toEqual(mockReview);
   });
 
-  test('sets active review and caches in localStorage when trigger is hit', () => {
+  test('sets latest review when trigger/setLatestReview is hit', async () => {
+    vi.mocked(aiReviewService.getLatestReview).mockResolvedValue(null);
+
     let extractedContext: any = null;
-    render(
-      <AiReviewProvider>
-        <TestComponent onMount={(val) => { extractedContext = val; }} />
-      </AiReviewProvider>
-    );
+    await act(async () => {
+      render(
+        <AiReviewProvider>
+          <TestComponent onMount={(val) => { extractedContext = val; }} />
+        </AiReviewProvider>
+      );
+    });
 
     const newReview = {
       id: 88,
@@ -71,14 +91,15 @@ describe('AiReviewContext and Provider', () => {
     };
 
     act(() => {
-      extractedContext.setActiveReview(newReview);
+      extractedContext.setLatestReview(newReview);
     });
 
-    expect(extractedContext.activeReview).toEqual(newReview);
-    expect(JSON.parse(localStorage.getItem('activeAiReview') || '')).toEqual(newReview);
+    expect(extractedContext.latestReview).toEqual(newReview);
   });
 
-  test('polls status every 10 seconds if active review status is IN_PROGRESS', async () => {
+  test('polls status every 10 seconds if latest review status is IN_PROGRESS', async () => {
+    vi.mocked(aiReviewService.getLatestReview).mockResolvedValue(null);
+
     const initialReview = {
       id: 88,
       portfolioId: 42,
@@ -96,14 +117,16 @@ describe('AiReviewContext and Provider', () => {
     vi.mocked(aiReviewService.getReviewStatus).mockResolvedValue(updatedReview);
 
     let extractedContext: any = null;
-    render(
-      <AiReviewProvider>
-        <TestComponent onMount={(val) => { extractedContext = val; }} />
-      </AiReviewProvider>
-    );
+    await act(async () => {
+      render(
+        <AiReviewProvider>
+          <TestComponent onMount={(val) => { extractedContext = val; }} />
+        </AiReviewProvider>
+      );
+    });
 
     act(() => {
-      extractedContext.setActiveReview(initialReview);
+      extractedContext.setLatestReview(initialReview);
     });
 
     // Fast-forward 10 seconds
@@ -112,6 +135,6 @@ describe('AiReviewContext and Provider', () => {
     });
 
     expect(aiReviewService.getReviewStatus).toHaveBeenCalledWith(88);
-    expect(extractedContext.activeReview.status).toBe('COMPLETED');
+    expect(extractedContext.latestReview.status).toBe('COMPLETED');
   });
 });

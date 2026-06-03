@@ -152,10 +152,10 @@ public class PortfolioController {
                 .build());
   }
 
-  // 1b. Get the latest review run by the logged-in user across all portfolios (useful if portfolio
-  // got deleted)
-  @GetMapping("/ai-reviews/active")
-  public ResponseEntity<AiReviewStatusResponse> getActiveReview(
+  // 1b. Get the absolute latest review run by the logged-in user across all portfolios (useful if
+  // portfolio got deleted)
+  @GetMapping("/ai-reviews/latest")
+  public ResponseEntity<AiReviewStatusResponse> getLatestReview(
       @AuthenticationPrincipal UserDetails userDetails) {
     User currentUser = getCurrentUser(userDetails);
     Optional<AiReview> activeOpt =
@@ -221,6 +221,26 @@ public class PortfolioController {
             .errorMessage(review.getErrorMessage())
             .createdAt(review.getCreatedAt())
             .build());
+  }
+
+  // 3b. Delete a review
+  @DeleteMapping("/ai-reviews/{reviewId}")
+  public ResponseEntity<Void> deleteReview(
+      @PathVariable Long reviewId, @AuthenticationPrincipal UserDetails userDetails) {
+    User currentUser = getCurrentUser(userDetails);
+    AiReview review =
+        aiReviewRepository
+            .findById(reviewId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
+
+    if (!review.getPortfolio().getUser().getId().equals(currentUser.getId())) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN, "You do not own the portfolio for this review");
+    }
+
+    aiReviewRepository.delete(review);
+    return ResponseEntity.noContent().build();
   }
 
   // 4. Get paginated history of all reviews for a given portfolio

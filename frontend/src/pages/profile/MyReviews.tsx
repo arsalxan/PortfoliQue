@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import { portfolioService } from '../../services/portfolioService';
 import { aiReviewService } from '../../services/aiReviewService';
 import type { Portfolio, AiReviewHistory } from '../../types/portfolio';
+import { useAiReview } from '../../context/AiReviewContext';
 import ProfileSidebar from '../../components/layout/ProfileSidebar';
 import Pagination from '../../components/common/Pagination';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 export default function MyReviews() {
+  const { refreshLatestReview } = useAiReview();
   const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number | null>(null);
   const [reviews, setReviews] = useState<AiReviewHistory[]>([]);
@@ -57,6 +59,25 @@ export default function MyReviews() {
   const handlePortfolioChange = (portfolioId: number) => {
     setSelectedPortfolioId(portfolioId);
     setPage(0);
+  };
+
+  const handleDeleteReview = async (reviewId: number) => {
+    if (!window.confirm('Are you sure you want to delete this AI Audit review? This action cannot be undone.')) return;
+
+    const toastId = toast.loading('Deleting AI Audit review...');
+    try {
+      await aiReviewService.deleteReview(reviewId);
+      toast.success('AI Audit review deleted successfully', { id: toastId });
+      refreshLatestReview();
+      // Re-fetch review history for the current page
+      if (selectedPortfolioId !== null) {
+        const data = await aiReviewService.getReviewHistory(selectedPortfolioId, page, 5);
+        setReviews(data.content);
+        setTotalPages(data.totalPages);
+      }
+    } catch (err) {
+      toast.error('Failed to delete AI Audit review', { id: toastId });
+    }
   };
 
   const getScoreColor = (score: number | null) => {
@@ -166,12 +187,20 @@ export default function MyReviews() {
                             {r.status === 'IN_PROGRESS' && <span className="badge bg-warning-subtle text-warning">Running</span>}
                           </td>
                           <td className="px-3 text-end">
-                            <Link
-                              to={`/portfolios/ai-reviews/${r.id}`}
-                              className="btn btn-sm btn-outline-primary rounded-pill px-3"
-                            >
-                              <i className="fas fa-eye me-1"></i> View Audit
-                            </Link>
+                            <div className="d-flex justify-content-end gap-2">
+                              <Link
+                                to={`/portfolios/ai-reviews/${r.id}`}
+                                className="btn btn-sm btn-outline-primary rounded-pill px-3"
+                              >
+                                <i className="fas fa-eye me-1"></i> View Audit
+                              </Link>
+                              <button
+                                onClick={() => handleDeleteReview(r.id)}
+                                className="btn btn-sm btn-outline-danger rounded-pill px-3"
+                              >
+                                <i className="fas fa-trash-alt me-1"></i> Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
