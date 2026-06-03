@@ -1,0 +1,33 @@
+# ── Local PostgreSQL (mirrors Neon) ──────────────────────────────────────────
+#
+# Usage:
+#   docker compose up -d        → start Postgres in background
+#   docker compose down         → stop & remove container
+#   docker compose down -v      → stop, remove container + data volume
+#
+# Local DB URL (use this in .env to switch away from Neon):
+#   DB_URL=jdbc:postgresql://localhost:5432/portfolique
+#   DB_USERNAME=postgres
+#   DB_PASSWORD=postgres
+#
+# In application.properties the dialect stays the same (PostgreSQL → PostgreSQL)
+# so no other changes are needed — just swap the .env values above.
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: portfolique_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: portfolique
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - portfolique_pgdata:/var/lib/postgresql/data
+
+volumes:
+  portfolique_pgdata:
+    driver: local

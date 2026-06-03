@@ -7,25 +7,21 @@ import lombok.Data;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class PortfolioAnalyzerService {
 
-  private final RestTemplate restTemplate;
-
-  public PortfolioAnalyzerService() {
-    this.restTemplate = new RestTemplate();
-  }
+  public PortfolioAnalyzerService() {}
 
   public PortfolioAnalysis analyzePortfolio(String url) {
     try {
-      String html = restTemplate.getForObject(url, String.class);
-      if (html == null) {
-        return PortfolioAnalysis.builder().error("Failed to fetch HTML content").build();
-      }
-
-      Document doc = Jsoup.parse(html);
+      // Connect directly using Jsoup, resolving the URL to set absolute paths accurately
+      Document doc =
+          Jsoup.connect(url)
+              .userAgent(
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+              .timeout(15000)
+              .get();
 
       List<LinkInfo> links =
           doc.select("a").stream()

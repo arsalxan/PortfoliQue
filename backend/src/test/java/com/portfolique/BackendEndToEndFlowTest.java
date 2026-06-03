@@ -8,10 +8,13 @@ import com.portfolique.dto.request.RegisterRequest;
 import com.portfolique.dto.response.AuthResponse;
 import com.portfolique.dto.response.FeedbackResponse;
 import com.portfolique.dto.response.PortfolioResponse;
+import com.portfolique.entity.AiReview;
+import com.portfolique.entity.AiReviewStatus;
 import com.portfolique.entity.Feedback;
 import com.portfolique.entity.Notification;
 import com.portfolique.entity.Portfolio;
 import com.portfolique.entity.User;
+import com.portfolique.repository.AiReviewRepository;
 import com.portfolique.repository.FeedbackRepository;
 import com.portfolique.repository.NotificationRepository;
 import com.portfolique.repository.PortfolioRepository;
@@ -24,6 +27,8 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +49,8 @@ public class BackendEndToEndFlowTest {
   @Autowired private FeedbackRepository feedbackRepository;
 
   @Autowired private NotificationRepository notificationRepository;
+
+  @Autowired private AiReviewRepository aiReviewRepository;
 
   // We mock EmailService to prevent actual emails from being sent to Brevo API during the test
   @MockitoBean private EmailService emailService;
@@ -167,6 +174,26 @@ public class BackendEndToEndFlowTest {
         feedbackService.updateFeedback(targetFeedbackId, updateReq, userB);
     assertEquals("Legitimate Update by Author!", updatedRes.getContent());
     System.out.println("-> RBAC Update Security verified! Only authors can edit.");
+
+    // 9. Integration Check: AI Review Trigger and Status flows for User A on their Portfolio
+    System.out.println("-> Running AI Review Integration flows...");
+    AiReview review =
+        AiReview.builder()
+            .portfolio(savedPortfolio)
+            .version(1)
+            .status(AiReviewStatus.IN_PROGRESS)
+            .build();
+
+    review = aiReviewRepository.save(review);
+    assertNotNull(review.getId(), "AiReview ID must be generated");
+    assertEquals(AiReviewStatus.IN_PROGRESS, review.getStatus());
+
+    // Verify querying history lists correctly
+    Page<AiReview> history =
+        aiReviewRepository.findByPortfolioOrderByVersionDesc(savedPortfolio, PageRequest.of(0, 5));
+    assertEquals(1, history.getTotalElements());
+    assertEquals(1, history.getContent().get(0).getVersion());
+    System.out.println("-> AI Review integration states verified!");
 
     System.out.println("=== END TO END FLOW TEST COMPLETED SUCCESSFULLY ===");
   }

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.tsx';
+import { AiReviewProvider } from './context/AiReviewContext.tsx';
 import MainLayout from './components/layout/MainLayout.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import AdminRoute from './components/AdminRoute.tsx';
@@ -19,6 +20,7 @@ import PortfolioSearch from './pages/portfolio/PortfolioSearch.tsx';
 import AiReview from './pages/portfolio/AiReview.tsx';
 import FeaturedPortfolio from './pages/portfolio/FeaturedPortfolio.tsx';
 import FeaturedAiReview from './pages/portfolio/FeaturedAiReview.tsx';
+import MyReviews from './pages/profile/MyReviews.tsx';
 
 // Feedback Pages
 import FeedbackList from './pages/feedback/FeedbackList.tsx';
@@ -36,7 +38,6 @@ import AdminUsers from './pages/admin/AdminUsers.tsx';
 import AdminPortfolios from './pages/admin/AdminPortfolios.tsx';
 import AdminFeedbacks from './pages/admin/AdminFeedbacks.tsx';
 
-
 import { Toaster } from 'react-hot-toast';
 import NotFound from './pages/NotFound.tsx';
 import ErrorPage from './pages/ErrorPage.tsx';
@@ -46,55 +47,58 @@ function App() {
     <BrowserRouter>
       <ScrollToTop />
       <AuthProvider>
-        <Toaster 
-          position="top-right" 
-          containerStyle={{
-            top: 70,
-          }}
-          toastOptions={{ duration: 4000 }} 
-        />
-        <Routes>
-          <Route element={<MainLayout />}>
-            {/* Public routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/verify-email/:token" element={<VerifyEmail />} />
+        <AiReviewProvider>
+          <Toaster 
+            position="top-right" 
+            containerStyle={{
+              top: 70,
+            }}
+            toastOptions={{ duration: 4000 }} 
+          />
+          <Routes>
+            <Route element={<MainLayout />}>
+              {/* Public routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
-            {/* Portfolio routes (browsing is public, creating requires auth) */}
-            <Route path="/portfolios" element={<PortfolioList />} />
-            <Route path="/portfolios/search" element={<PortfolioSearch />} />
-            <Route path="/portfolios/featured/bokhari" element={<FeaturedPortfolio />} />
-            <Route path="/portfolios/featured/bokhari/ai-review" element={<FeaturedAiReview />} />
-            <Route path="/portfolios/:id/feedbacks" element={<FeedbackList />} />
+              {/* Portfolio routes (browsing is public, creating requires auth) */}
+              <Route path="/portfolios" element={<PortfolioList />} />
+              <Route path="/portfolios/search" element={<PortfolioSearch />} />
+              <Route path="/portfolios/featured/bokhari" element={<FeaturedPortfolio />} />
+              <Route path="/portfolios/featured/bokhari/ai-review" element={<FeaturedAiReview />} />
+              <Route path="/portfolios/:id/feedbacks" element={<FeedbackList />} />
 
-            {/* Protected routes */}
-            <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/profile/myportfolios" element={<MyPortfolios />} />
-              <Route path="/profile/myfeedbacks" element={<MyFeedbacks />} />
-              <Route path="/portfolios/new" element={<PortfolioCreate />} />
-              <Route path="/portfolios/:id/edit" element={<PortfolioEdit />} />
-              <Route path="/portfolios/:id/feedbacks/new" element={<FeedbackCreate />} />
-              <Route path="/portfolios/:portfolioId/feedbacks/:feedbackId" element={<FeedbackDetail />} />
-              <Route path="/portfolios/:id/ai-review" element={<AiReview />} />
-              <Route path="/notifications" element={<Notifications />} />
+              {/* Protected routes */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/profile/myportfolios" element={<MyPortfolios />} />
+                <Route path="/profile/myfeedbacks" element={<MyFeedbacks />} />
+                <Route path="/profile/myreviews" element={<MyReviews />} />
+                <Route path="/portfolios/new" element={<PortfolioCreate />} />
+                <Route path="/portfolios/:id/edit" element={<PortfolioEdit />} />
+                <Route path="/portfolios/:id/feedbacks/new" element={<FeedbackCreate />} />
+                <Route path="/portfolios/:portfolioId/feedbacks/:feedbackId" element={<FeedbackDetail />} />
+                <Route path="/portfolios/ai-reviews/:reviewId" element={<AiReview />} />
+                <Route path="/notifications" element={<Notifications />} />
+              </Route>
+
+              {/* Admin routes */}
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/portfolios" element={<AdminPortfolios />} />
+                <Route path="/admin/feedbacks" element={<AdminFeedbacks />} />
+              </Route>
+
+              {/* Error Handlers */}
+              <Route path="/error" element={<ErrorPage />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
-
-            {/* Admin routes */}
-            <Route element={<AdminRoute />}>
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/portfolios" element={<AdminPortfolios />} />
-              <Route path="/admin/feedbacks" element={<AdminFeedbacks />} />
-            </Route>
-
-            {/* Error Handlers */}
-            <Route path="/error" element={<ErrorPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
+          </Routes>
+        </AiReviewProvider>
       </AuthProvider>
     </BrowserRouter>
   );

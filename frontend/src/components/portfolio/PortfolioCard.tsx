@@ -1,6 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Portfolio } from '../../types/portfolio';
 import { useAuth } from '../../context/AuthContext';
+import { useAiReview } from '../../context/AiReviewContext';
+import { aiReviewService } from '../../services/aiReviewService';
+import toast from 'react-hot-toast';
 
 interface PortfolioCardProps {
   portfolio: Portfolio;
@@ -15,13 +18,28 @@ const getOptimizedImageUrl = (url: string | null | undefined): string => {
     return url.replace('/upload/', '/upload/f_auto,q_auto,w_600,c_scale/');
   }
   return url;
-};
+}
 
 export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProps) {
   const { user } = useAuth();
+  const { activeReview, setActiveReview } = useAiReview();
+  const navigate = useNavigate();
   const isOwner = user?.id === portfolio.userId;
 
   const displayScreenshot = getOptimizedImageUrl(portfolio.screenshot);
+
+  const handleAiReviewTrigger = async () => {
+    const loadingToast = toast.loading('Initializing AI Audit Pipeline...');
+    try {
+      const statusResponse = await aiReviewService.triggerReview(portfolio.id);
+      setActiveReview(statusResponse);
+      toast.success('AI Audit triggered! Check status in navigation bar.', { id: loadingToast });
+      navigate(`/portfolios/ai-reviews/${statusResponse.id}`);
+    } catch (err: any) {
+      const errMsg = err.response?.data?.message || 'Failed to trigger AI Review.';
+      toast.error(errMsg, { id: loadingToast });
+    }
+  };
 
   return (
     <div className="col">
@@ -82,9 +100,15 @@ export default function PortfolioCard({ portfolio, onDelete }: PortfolioCardProp
             )}
             
             {isOwner ? (
-              <Link to={`/portfolios/${portfolio.id}/ai-review`} className="btn btn-info btn-sm d-flex align-items-center">
-                <i className="fas fa-robot me-1"></i> AI Review
-              </Link>
+              activeReview && activeReview.portfolioId === portfolio.id && activeReview.status === 'IN_PROGRESS' ? (
+                <button disabled className="btn btn-warning btn-sm d-flex align-items-center opacity-75">
+                  <i className="fas fa-spinner fa-spin me-1"></i> Auditing...
+                </button>
+              ) : (
+                <button onClick={handleAiReviewTrigger} className="btn btn-info btn-sm d-flex align-items-center">
+                  <i className="fas fa-robot me-1"></i> AI Review
+                </button>
+              )
             ) : (
               <Link to={`/portfolios/${portfolio.id}/feedbacks/new`} className="btn btn-primary btn-sm d-flex align-items-center">
                 <i className="fas fa-comment-dots me-1"></i> Give Feedback

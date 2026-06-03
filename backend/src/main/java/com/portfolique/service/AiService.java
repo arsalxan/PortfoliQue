@@ -18,6 +18,54 @@ public class AiService {
     this.chatClient = ChatClient.builder(chatModel).build();
   }
 
+  public String generateJsoupReview(PortfolioAnalysis analysis) {
+    String prompt =
+        "You are an expert SEO and content reviewer. Analyze the following metadata scraped from a live portfolio website:\n\n"
+            + "Title: "
+            + (analysis.getTitle() == null ? "None" : analysis.getTitle())
+            + "\n"
+            + "Links: "
+            + truncateLinks(analysis.getLinks())
+            + "\n"
+            + "Images count: "
+            + (analysis.getImages() == null ? 0 : analysis.getImages().size())
+            + "\n\n"
+            + "Provide a detailed content and structural analysis. Focus on clarity, copy/wording, links quality, and page identity. Use markdown headers, bold text, and bullet points. Output ONLY the markdown content. Do not add conversational intro/outro text.";
+    return callGemini(prompt);
+  }
+
+  public String generateLighthouseReview(LighthouseService.LighthouseResult result) {
+    String prompt =
+        "You are a web performance engineer. You have run an automated performance audit on a portfolio page. Here are the scores (out of 100):\n\n"
+            + "Performance: "
+            + result.performanceScore()
+            + "/100\n"
+            + "Accessibility: "
+            + result.accessibilityScore()
+            + "/100\n"
+            + "SEO: "
+            + result.seoScore()
+            + "/100\n\n"
+            + "Explain what each score means based on standard Google Lighthouse metrics, what is likely causing the result, and give 2-3 specific, actionable improvements for each area. Use markdown headers and bullet points. Output ONLY the markdown content. Do not add conversational intro/outro text.";
+    return callGemini(prompt);
+  }
+
+  public String synthesizeFinalReview(String jsoupReview, String lighthouseReview) {
+    String prompt =
+        "You are a senior web developer, hiring manager, and portfolio reviewer. You have two separate analysis reports for a developer portfolio page:\n\n"
+            + "--- CONTENT & STRUCTURE ANALYSIS ---\n"
+            + jsoupReview
+            + "\n\n"
+            + "--- METRICS & PERFORMANCE ANALYSIS ---\n"
+            + lighthouseReview
+            + "\n\n"
+            + "Synthesize these two reviews into a single cohesive overall summary. Provide:\n"
+            + "1. A concise Executive Summary verdict of the portfolio (strengths & weaknesses)\n"
+            + "2. Top 3 priority improvements that will make the user stand out to recruiters and load faster.\n\n"
+            + "Format with professional markdown. Output ONLY the synthesized markdown report. Do not add conversational intro/outro text.";
+    return callGemini(prompt);
+  }
+
   public String generatePortfolioReview(PortfolioAnalysis analysis) {
     String prompt =
         "You are an expert web developer and designer profile reviewer. "

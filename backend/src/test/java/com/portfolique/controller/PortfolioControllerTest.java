@@ -14,12 +14,15 @@ import com.portfolique.dto.request.PortfolioRequest;
 import com.portfolique.dto.response.PortfolioResponse;
 import com.portfolique.entity.Role;
 import com.portfolique.entity.User;
+import com.portfolique.repository.AiReviewRepository;
+import com.portfolique.repository.PortfolioRepository;
 import com.portfolique.repository.UserRepository;
 import com.portfolique.security.CustomUserDetailsService;
 import com.portfolique.security.JwtAuthenticationFilter;
 import com.portfolique.security.JwtService;
 import com.portfolique.security.SecurityConfig;
 import com.portfolique.service.AiService;
+import com.portfolique.service.AsyncAiReviewService;
 import com.portfolique.service.PortfolioAnalyzerService;
 import com.portfolique.service.PortfolioService;
 import java.util.List;
@@ -57,6 +60,12 @@ public class PortfolioControllerTest {
   @MockitoBean private PortfolioAnalyzerService portfolioAnalyzerService;
 
   @MockitoBean private AiService aiService;
+
+  @MockitoBean private AiReviewRepository aiReviewRepository;
+
+  @MockitoBean private PortfolioRepository portfolioRepository;
+
+  @MockitoBean private AsyncAiReviewService asyncAiReviewService;
 
   // We also need to mock these to satisfy JwtAuthenticationFilter (and SecurityConfig dependencies)
   @MockitoBean private JwtService jwtService;

@@ -42,6 +42,10 @@ public class Portfolio {
   @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Notification> notifications = new ArrayList<>();
 
+  @Builder.Default
+  @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<AiReview> aiReviews = new ArrayList<>();
+
   @CreationTimestamp private LocalDateTime createdAt;
 
   @UpdateTimestamp private LocalDateTime updatedAt;

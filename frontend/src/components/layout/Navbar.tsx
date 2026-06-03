@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.tsx';
+import { useAiReview } from '../../context/AiReviewContext.tsx';
 import { notificationService } from '../../services/notificationService.ts';
 import ConfirmModal from '../common/ConfirmModal.tsx';
 import toast from 'react-hot-toast';
 
 export default function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { activeReview } = useAiReview();
   const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -80,6 +82,27 @@ export default function Navbar() {
                     <Link className={`nav-link ${isActive('/admin')}`} to="/admin" onClick={() => setIsNavCollapsed(true)}>Admin</Link>
                   </li>
                 )}
+                {activeReview && (
+                  <li className="nav-item me-2">
+                    <Link to={`/portfolios/ai-reviews/${activeReview.id}`} onClick={() => setIsNavCollapsed(true)} style={{ textDecoration: 'none' }}>
+                      {activeReview.status === 'IN_PROGRESS' && (
+                        <span className="badge bg-warning text-dark px-2 py-1.5 shadow-sm d-flex align-items-center">
+                          <i className="fas fa-spinner fa-spin me-1"></i> Running Audit...
+                        </span>
+                      )}
+                      {activeReview.status === 'COMPLETED' && (
+                        <span className="badge bg-success px-2 py-1.5 shadow-sm d-flex align-items-center">
+                          <i className="fas fa-check-circle me-1"></i> Audit Ready
+                        </span>
+                      )}
+                      {activeReview.status === 'FAILED' && (
+                        <span className="badge bg-danger px-2 py-1.5 shadow-sm d-flex align-items-center">
+                          <i className="fas fa-exclamation-triangle me-1"></i> Audit Failed
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                )}
                 <li className="nav-item">
                   <Link className={`nav-link position-relative ${isActive('/notifications')}`} to="/notifications" onClick={() => setIsNavCollapsed(true)} title="Notifications">
                     <i className="fas fa-bell fs-5"></i>
@@ -106,6 +129,11 @@ export default function Navbar() {
                     <li>
                       <Link className="dropdown-item py-2" to="/profile" onClick={() => setIsNavCollapsed(true)}>
                         <i className="fas fa-user me-2 text-muted"></i> View Profile
+                      </Link>
+                    </li>
+                    <li>
+                      <Link className="dropdown-item py-2" to="/profile/myreviews" onClick={() => setIsNavCollapsed(true)}>
+                        <i className="fas fa-magic me-2 text-muted"></i> AI Audit History
                       </Link>
                     </li>
                     <li><hr className="dropdown-divider opacity-50" /></li>

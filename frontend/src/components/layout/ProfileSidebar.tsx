@@ -23,6 +23,10 @@ export default function ProfileSidebar() {
         <i className="fas fa-comments me-lg-3 fs-5"></i>
         <span className="d-none d-lg-inline fw-semibold">My Feedbacks</span>
       </NavLink>
+      <NavLink to="/profile/myreviews" className={({isActive}) => `sidebar-link d-flex align-items-center w-100 mb-3 text-decoration-none ${isActive ? 'active' : ''}`} title="AI Audits">
+        <i className="fas fa-magic me-lg-3 fs-5"></i>
+        <span className="d-none d-lg-inline fw-semibold">AI Audits</span>
+      </NavLink>
     </div>
   );
 }

@@ -1,13 +1,16 @@
 package com.portfolique.controller;
 
 import com.portfolique.dto.request.PortfolioRequest;
-import com.portfolique.dto.response.PortfolioResponse;
-import com.portfolique.entity.User;
+import com.portfolique.dto.response.*;
+import com.portfolique.entity.*;
+import com.portfolique.repository.AiReviewRepository;
+import com.portfolique.repository.PortfolioRepository;
 import com.portfolique.repository.UserRepository;
-import com.portfolique.service.AiService;
-import com.portfolique.service.PortfolioAnalyzerService;
+import com.portfolique.service.AsyncAiReviewService;
 import com.portfolique.service.PortfolioService;
 import jakarta.validation.Valid;
+import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -21,23 +24,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/v1/portfolios")
+@RequiredArgsConstructor
 public class PortfolioController {
 
   private final PortfolioService portfolioService;
   private final UserRepository userRepository;
-  private final PortfolioAnalyzerService portfolioAnalyzerService;
-  private final AiService aiService;
-
-  public PortfolioController(
-      PortfolioService portfolioService,
-      UserRepository userRepository,
-      PortfolioAnalyzerService portfolioAnalyzerService,
-      AiService aiService) {
-    this.portfolioService = portfolioService;
-    this.userRepository = userRepository;
-    this.portfolioAnalyzerService = portfolioAnalyzerService;
-    this.aiService = aiService;
-  }
+  private final AiReviewRepository aiReviewRepository;
+  private final PortfolioRepository portfolioRepository;
+  private final AsyncAiReviewService asyncAiReviewService;
 
   @GetMapping("")
   public ResponseEntity<Page<PortfolioResponse>> getAllPortfolios(
@@ -95,34 +89,143 @@ public class PortfolioController {
     return ResponseEntity.ok(portfolioService.searchPortfolios(query, pageable));
   }
 
-  @GetMapping("/{id}/ai-review")
-  public ResponseEntity<com.portfolique.dto.response.AiReviewResponse> getAiReview(
-      @PathVariable Long id) {
-    PortfolioResponse portfolio = portfolioService.getPortfolioById(id);
-    PortfolioAnalyzerService.PortfolioAnalysis analysis =
-        portfolioAnalyzerService.analyzePortfolio(portfolio.getUrl());
+  // 1. Trigger a new async review run (returns 202 immediately)
+  @PostMapping("/{id}/ai-review/trigger")
+  public ResponseEntity<AiReviewStatusResponse> triggerAiReview(
+      @PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
 
-    if (analysis.getError() != null) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_GATEWAY, "Scraping failed: " + analysis.getError());
+    User currentUser = getCurrentUser(userDetails);
+    Portfolio portfolio =
+        portfolioRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
+
+    if (!portfolio.getUser().getId().equals(currentUser.getId())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You do not own this portfolio");
     }
 
-    String reviewText;
-    try {
-      reviewText = aiService.generatePortfolioReview(analysis);
-    } catch (Exception e) {
-      reviewText = "AI review is currently unavailable. Please try again later.";
+    // Check if there's already an IN_PROGRESS review for this portfolio to prevent double runs
+    Optional<AiReview> latestReviewOpt =
+        aiReviewRepository.findTopByPortfolioOrderByVersionDesc(portfolio);
+    if (latestReviewOpt.isPresent()
+        && latestReviewOpt.get().getStatus() == AiReviewStatus.IN_PROGRESS) {
+      AiReview active = latestReviewOpt.get();
+      return ResponseEntity.status(HttpStatus.ACCEPTED)
+          .body(
+              AiReviewStatusResponse.builder()
+                  .id(active.getId())
+                  .portfolioId(portfolio.getId())
+                  .portfolioUrl(portfolio.getUrl())
+                  .version(active.getVersion())
+                  .status(active.getStatus())
+                  .createdAt(active.getCreatedAt())
+                  .build());
     }
+
+    // Calculate next version number
+    int versionCount = aiReviewRepository.countByPortfolio(portfolio);
+    int nextVersion = versionCount + 1;
+
+    // Create the review record with status IN_PROGRESS
+    AiReview review =
+        AiReview.builder()
+            .portfolio(portfolio)
+            .version(nextVersion)
+            .status(AiReviewStatus.IN_PROGRESS)
+            .build();
+
+    review = aiReviewRepository.save(review);
+
+    // Launch pipeline in async executor
+    asyncAiReviewService.runReviewPipeline(review, portfolio.getUrl());
+
+    return ResponseEntity.status(HttpStatus.ACCEPTED)
+        .body(
+            AiReviewStatusResponse.builder()
+                .id(review.getId())
+                .portfolioId(portfolio.getId())
+                .portfolioUrl(portfolio.getUrl())
+                .version(review.getVersion())
+                .status(review.getStatus())
+                .createdAt(review.getCreatedAt())
+                .build());
+  }
+
+  // 2. Check current status of a specific review by its ID
+  @GetMapping("/ai-reviews/{reviewId}/status")
+  public ResponseEntity<AiReviewStatusResponse> getReviewStatus(@PathVariable Long reviewId) {
+    AiReview review =
+        aiReviewRepository
+            .findById(reviewId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
 
     return ResponseEntity.ok(
-        com.portfolique.dto.response.AiReviewResponse.builder()
-            .portfolioId(id)
-            .portfolioUrl(portfolio.getUrl())
-            .pageTitle(analysis.getTitle())
-            .linkCount(analysis.getLinks().size())
-            .imageCount(analysis.getImages().size())
-            .review(reviewText)
+        AiReviewStatusResponse.builder()
+            .id(review.getId())
+            .portfolioId(review.getPortfolio().getId())
+            .portfolioUrl(review.getPortfolio().getUrl())
+            .version(review.getVersion())
+            .status(review.getStatus())
+            .createdAt(review.getCreatedAt())
             .build());
+  }
+
+  // 3. Get the full content of a completed review
+  @GetMapping("/ai-reviews/{reviewId}")
+  public ResponseEntity<AiReviewFullResponse> getFullReview(@PathVariable Long reviewId) {
+    AiReview review =
+        aiReviewRepository
+            .findById(reviewId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Review not found"));
+
+    return ResponseEntity.ok(
+        AiReviewFullResponse.builder()
+            .id(review.getId())
+            .portfolioId(review.getPortfolio().getId())
+            .version(review.getVersion())
+            .status(review.getStatus())
+            .performanceScore(review.getPerformanceScore())
+            .accessibilityScore(review.getAccessibilityScore())
+            .seoScore(review.getSeoScore())
+            .jsoupReviewText(review.getJsoupReviewText())
+            .lighthouseReviewText(review.getLighthouseReviewText())
+            .finalReviewText(review.getFinalReviewText())
+            .errorMessage(review.getErrorMessage())
+            .createdAt(review.getCreatedAt())
+            .build());
+  }
+
+  // 4. Get paginated history of all reviews for a given portfolio
+  @GetMapping("/{id}/ai-reviews/history")
+  public ResponseEntity<Page<AiReviewHistoryResponse>> getReviewHistory(
+      @PathVariable Long id, @PageableDefault(size = 5) Pageable pageable) {
+
+    Portfolio portfolio =
+        portfolioRepository
+            .findById(id)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Portfolio not found"));
+
+    Page<AiReview> reviewsPage =
+        aiReviewRepository.findByPortfolioOrderByVersionDesc(portfolio, pageable);
+
+    Page<AiReviewHistoryResponse> responsePage =
+        reviewsPage.map(
+            review ->
+                AiReviewHistoryResponse.builder()
+                    .id(review.getId())
+                    .version(review.getVersion())
+                    .status(review.getStatus())
+                    .performanceScore(review.getPerformanceScore())
+                    .accessibilityScore(review.getAccessibilityScore())
+                    .seoScore(review.getSeoScore())
+                    .createdAt(review.getCreatedAt())
+                    .build());
+
+    return ResponseEntity.ok(responsePage);
   }
 
   private User getCurrentUser(UserDetails userDetails) {
